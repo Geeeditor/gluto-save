@@ -1,0 +1,23 @@
+payment methods
+
+gluto_transfer
+paystack
+wallet_balance
+
+
+Payments Types
+contribution
+subscription
+registration
+
+Payments Status
+pending
+approved
+failed
+
+Subscription Status
+pending_activation
+inactive
+active
+terminated
+matured
