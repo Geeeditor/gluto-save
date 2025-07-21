@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payments extends Model
 {
@@ -16,6 +17,7 @@ class Payments extends Model
         'payment_status', // Status of the payment
         'payment_type', // Type of payment (e.g., 'activation', 'contribution', etc.)
         'receipt',
+        'payment_id'
     ];
 
     /**

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 10, 2); // Amount paid
             $table->string('payment_proof')->nullable();
+            $table->integer('payment_id'); // Used in looking up the parent model depending on the transaction type
             $table->string('transaction_reference')->unique(); // Reference for the payment transaction
             $table->string('payment_method')->default('gluto_transfer'); // Default payment type
             $table->string('payment_status')->default('pending'); // Status of the payment (e.g. pending, failed, approved)

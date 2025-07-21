@@ -9,6 +9,7 @@ Payments Types
 contribution
 subscription
 registration
+wallet_fund
 
 Payments Status
 pending
@@ -16,7 +17,7 @@ approved
 failed
 
 Subscription Status
-pending_activation
+pending_activation for package Status
 inactive
 active
 terminated

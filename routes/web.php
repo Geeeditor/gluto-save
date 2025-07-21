@@ -58,7 +58,9 @@ Route::middleware('user')->group(function () {
 
     Route::get('/dashboard/payments', [PaymentsController::class, 'index'])->name('dashboard.payments');
 
-    Route::get('/dashboard/payment/retry', [PaymentsController::class, 'retryPayment'])->name('dashboard.payments.retry');
+    Route::get('/dashboard/payment/retry/{id}', [PaymentsController::class, 'retryPayment'])->name('dashboard.payments.retry');
+
+    Route::put('/dashboard/payment/update/{id}', [PaymentsController::class, 'updatePayment'])->name('dashboard.payments.update');
 
     //Auth Subscription Endpoints
 
@@ -69,6 +71,11 @@ Route::middleware('user')->group(function () {
     Route::get('/dashboard/subscription/{plan}', [DashboardController::class, 'getPreferedSubscription'])->name('plan.checkout');
 
     Route::post('/dashboard/subscription/checkout', [DashboardController::class, 'checkoutSubscription'])->name('plan.checkout.store');
+
+    Route::get('/dashboard/fund', [PaymentsController::class, 'walletfund'])->name('dashboard.fund');
+
+    Route::post('/dashboard/fund/checkout', [PaymentsController::class, 'walletfundCheckout'])->name('dashboard.fund.store');
+
 });
 
 

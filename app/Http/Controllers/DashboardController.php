@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use App\Models\PackageSubscription;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,14 @@ use App\Models\Notification as Notification;
 class DashboardController extends Controller
 {
     //
+
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     private function getUserPlaceholderImage()
     {
         $user = Auth::user();
@@ -82,7 +91,6 @@ class DashboardController extends Controller
     }
 
 
-
     public function account() {
         $user = Auth::user();
         $profilePic = $this->getUserPlaceholderImage();
@@ -138,15 +146,17 @@ class DashboardController extends Controller
                 DB::transaction(function() use ($user, $userDashboard, $fileName, $data, $trxRef, $trxType) {
 
 
+
+                    $user->activeDashboard()->create();
+
                     $user->payments()->create([
                         'amount' => $data['amount'],
                         'payment_method' => $data['payment_method'],
                         'payment_proof' => $fileName,
                         'payment_type' => $trxType,
-                        'transaction_reference' => $trxRef
+                        'transaction_reference' => $trxRef,
+                        'payment_id' => $user->activeDashboard()->first()->id
                     ]);
-
-                    $user->activeDashboard()->create();
 
                 });
 
@@ -161,15 +171,17 @@ class DashboardController extends Controller
                         $userDashboard->delete();
                     }
 
+                    $user->activeDashboard()->create();
+
                     $user->payments()->create([
                         'amount' => $data['amount'],
                         'payment_method' => $data['payment_method'],
                         'payment_proof' => $fileName,
                         'payment_type' => $trxType,
-                        'transaction_reference' => $trxRef
+                        'transaction_reference' => $trxRef,
+                        'payment_id' => $user->activeDashboard()->first()->id
                     ]);
 
-                    $user->activeDashboard()->create();
 
                 });
 
@@ -226,7 +238,7 @@ class DashboardController extends Controller
 
             });
 
-            return redirect()->route('dashboard')->with('info', 'Your payment  has been resubmitted successfully. Please wait for approval.');
+            return redirect()->route('dashboard')->with('info', 'Your payment  has been resubmitted successfully. Please wait for confirmation.');
 
         } elseif ($data['payment_method'] == 'paystack') {
             //Paystack Payment
@@ -523,7 +535,7 @@ class DashboardController extends Controller
             DB::transaction(function () use ($user,  $fileName, $subscription, $request) {
                 $activeSub = $user->subscriptions()->where('is_primary', true)->update(['is_primary' => false]);
 
-                $user->subscriptions()->create([
+                $package = $user->subscriptions()->create([
                     'tier' => $subscription['plan'],
                     'is_primary' => true,
                     'sub_id'=> $subscription['sub_id'],
@@ -536,6 +548,7 @@ class DashboardController extends Controller
                     'transaction_reference' => $subscription['trxRef'],
                     'payment_method' => $subscription['payment_method'],
                     'payment_type' => $subscription['payment_type'],
+                    'payment_id' => $package->id //Subscription package id
                 ]);
 
                 $request->session()->forget(['subscription_plan', 'subscription_amount']);

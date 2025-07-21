@@ -33,31 +33,38 @@
                 </tr>
             </thead>
             <tbody class="text-gray-700 text-sm">
+                @foreach ( $paymentHistory as $payment )
                 <tr class="hover:bg-gray-50 border-gray-200 border-b cursor-pointer">
                     <td class="px-6 py-4 font-medium whitespace-nowrap">
-                        Contribution
+                        {{ $payment->payment_type == 'registration' ? 'Registration' : ($payment->payment_type == 'contribution' ? 'Contribution' : ($payment->payment_type == 'wallet_fund' ? 'Wallet Funding' : ($payment->payment_type == 'subscription' ? 'Subscription' : 'Unknown'))) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        TRX123456789
+                        {{ $payment->transaction_reference }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        Bank Transfer
+                        {{ $payment->payment_method == 'gluto_transfer' ? 'Bank Transfer' : ($payment->payment_method == 'wallet_balance' ? 'Wallet Balance' : 'Paystack' )  }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        2024-06-01
+                        {{-- {{ $payment->created_at->diffForHumans() }} --}}
+                        {{ $payment->created_at->format('F j, Y') }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <a class="text-[#bb6a0a] hover:underline" href="#" target="_blank" rel="noopener noreferrer">
+                        <a class="text-[#bb6a0a] hover:underline" href="{{ asset('receipts/' . $payment->receipt) }}" target="_blank" rel="noopener noreferrer">
                             View Receipt
                         </a>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-block bg-green-100 px-3 py-1 rounded-full font-semibold text-green-800 text-xs">
-                            Completed
+
+                        {{-- s --}}
+
+                        <span class="{{$payment->payment_status == 'pending' ? 'inline-block bg-yellow-100 px-3 py-1 rounded-full font-semibold text-yellow-800 text-xs' : ($payment->payment_status == 'failed' ? 'inline-block bg-red-100 px-3 py-1 rounded-full font-semibold text-red-800 text-xs' : 'inline-block bg-green-100 px-3 py-1 rounded-full font-semibold text-green-800 text-xs') }}">
+                            {!! $payment->payment_status == 'pending' || $payment->payment_status == 'approved' ? ucfirst($payment->payment_status) : '<a href="' . route('dashboard.payments.retry', $payment->id) . '">Retry</a>' !!}
                         </span>
                     </td>
                 </tr>
-                <tr class="hover:bg-gray-50 border-gray-200 border-b cursor-pointer">
+                @endforeach
+
+                {{-- <tr class="hover:bg-gray-50 border-gray-200 border-b cursor-pointer">
                     <td class="px-6 py-4 font-medium whitespace-nowrap">
                         Thrift Payment
                     </td>
@@ -153,7 +160,7 @@
                             Completed
                         </span>
                     </td>
-                </tr>
+                </tr> --}}
             </tbody>
         </table>
     </section>
