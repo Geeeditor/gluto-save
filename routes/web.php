@@ -72,6 +72,8 @@ Route::middleware('user')->group(function () {
 
     Route::post('/dashboard/subscription/checkout', [DashboardController::class, 'checkoutSubscription'])->name('plan.checkout.store');
 
+    Route::put('dashboard/subscription/switch', [DashboardController::class, 'switchPackage'])->name('subscription.switch');
+
     Route::get('/dashboard/fund', [PaymentsController::class, 'walletfund'])->name('dashboard.fund');
 
     Route::post('/dashboard/fund/checkout', [PaymentsController::class, 'walletfundCheckout'])->name('dashboard.fund.store');

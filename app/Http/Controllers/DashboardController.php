@@ -23,77 +23,10 @@ class DashboardController extends Controller
         $this->userService = $userService;
     }
 
-    private function getUserPlaceholderImage()
-    {
-        $user = Auth::user();
-
-        if ($user && $user->display_pic === null) {
-            $usernames = $user->name; // Example input
-
-            $displayImages = explode(" ", $usernames); // Split the string into an array
-
-            // Select the first letter of each username
-            $firstLettersArray = array_map(function ($username) {
-                return strtoupper(substr($username, 0, 1)); // Get the first letter and convert to uppercase
-            }, $displayImages);
-
-            // Join the first letters into a string
-            $firstLetters = implode('', $firstLettersArray);
-
-            // Create the placeholder URL
-            return 'https://placehold.co/300x300/000000/FFF?text=' . $firstLetters;
-        }
-
-        // Return a default image or null if the display picture exists
-        return 'https://placehold.co/300x300/000000/FFF?text=JD'; // or a default placeholder URL
-    }
-
-    private function generateTrxRef($trxType, $subID = null) {
-        $transactionReference = '';
-
-        if ($trxType == 'registration') {
-            $transactionReference = 'ghep/reg/' . Str::random(5)  . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
-        } elseif ($trxType == 'subscription') {
-            if (is_null($subID)) {
-                throw new \InvalidArgumentException("subID is required for subscription transactions.");
-            }
-            $transactionReference = 'ghep/sub/' . $subID . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
-        } elseif ($trxType == 'contribution') {
-            if (is_null($subID)) {
-                throw new \InvalidArgumentException("subID is required for contribution transactions.");
-            }
-            $transactionReference = 'ghep/wkpyt/' . $subID . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
-        } elseif ($trxType == 'withdrawal') {
-            $transactionReference = 'ghep/debit/' . Str::random(5)  . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
-        } else {
-            throw new \InvalidArgumentException("Invalid payment type: $trxType");
-        }
-
-        return $transactionReference;
-    }
-
-    private function generateAccount(User $users) {
-
-
-        // Retrieve existing account IDs from subscriptions
-        $existingNumbers = $users->subscriptions->pluck('sub_id')->toArray();
-
-        if($existingNumbers == null) {
-            $existingNumbers = ['12345678910', '10987654321'];
-        }
-
-        do {
-            // Generate an 11-digit random number
-            $accountNumber = str_pad(rand(0, 99999999999), 11, '0', STR_PAD_LEFT);
-        } while (in_array($accountNumber, $existingNumbers));
-
-        return $accountNumber;
-    }
-
 
     public function account() {
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = null;
         $payment = $user->payments()->where('payment_type', 'registration')->first();
         $userDashboard = $user->activeDashboard()->first();
@@ -118,11 +51,11 @@ class DashboardController extends Controller
         ]);
 
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
 
 
         $trxType = 'registration';
-        $trxRef = $this->generateTrxRef($trxType);
+        $trxRef = $this->userService->generateTrxRef($trxType);
         $userDashboard = $user->activeDashboard()->first();
 
         // dd($userDashboard);
@@ -204,7 +137,7 @@ class DashboardController extends Controller
 
         $user = Auth::user();
         $trxType = 'registration';
-        $trxRef = $this->generateTrxRef($trxType);
+        $trxRef = $this->userService->generateTrxRef($trxType);
 
 
         $payment = $user->payments()->find($id);
@@ -258,7 +191,7 @@ class DashboardController extends Controller
 
     public function index(PackageSubscription $packageSubscription) {
         $user =  Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = null;
         $accountActive = $user->activeDashboard()->first();
         $payment = $user->payments()->where('payment_type', 'registration')->first();
@@ -303,7 +236,7 @@ class DashboardController extends Controller
 
     public function kyc() {
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = null;
 
         // Check if the user has a KYC record
@@ -407,7 +340,7 @@ class DashboardController extends Controller
 
     public function kycStatus() {
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = null;
 
         // Fetch the user's KYC status
@@ -426,7 +359,7 @@ class DashboardController extends Controller
 
     public function subscribe(){
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = null;
 
         return view('dashboard.plan', ['user' => $user, 'profilePic' => $profilePic]);
@@ -435,7 +368,7 @@ class DashboardController extends Controller
 
     public function subscriptions() {
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = null;
 
         // Fetch all subscriptions for the user
@@ -469,7 +402,7 @@ class DashboardController extends Controller
 
 
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
         $userKYC = $user->kyc()->first();
 
         // dd($userKYC);
@@ -486,7 +419,7 @@ class DashboardController extends Controller
         $plan = $request->session()->get('subscription_plan');
         $amount = $request->session()->get('subscription_amount');
         $user = Auth::user();
-        $profilePic = $this->getUserPlaceholderImage();
+        $profilePic = $this->userService->getUserPlaceholderImage();
 
         if(!$plan){
             return redirect()->route('dashboard')->with('info', 'Our system is experiencing an error please try again later');
@@ -505,8 +438,9 @@ class DashboardController extends Controller
         $trxType = 'subscription';
         $plan = $request->session()->get('subscription_plan');
         $amount = $request->session()->get('subscription_amount');
-        $subID = $this->generateAccount($users);
-        $trxRef = $this->generateTrxRef($trxType, $subID);
+        $subID = $this->userService->generateAccount($users);
+        // dd($subID);
+        $trxRef = $this->userService->generateTrxRef($trxType, $subID);
 
 
         // dd($activeSub);
@@ -565,6 +499,38 @@ class DashboardController extends Controller
 
 
         return redirect()->back()->with('info', 'We could not determine your payment option');
+    }
+
+    public function switchPackage(Request $request)
+    {
+        $data = $request->validate([
+            'sub_id' => 'required'
+        ]);
+
+        // dd($data['sub_id']);
+
+        $user = Auth::user();
+
+        // Retrieve the current primary subscription
+        $currentPackage = $user->subscriptions()->where('is_primary', true)->first();
+
+        // Retrieve the subscription to switch to
+        $switchPackage = $user->subscriptions()->where('sub_id', $data['sub_id'])->first();
+
+        // Check if both subscriptions exist
+        if (!$currentPackage || !$switchPackage) {
+            return redirect()->back()->with('error', 'Invalid subscriptions provided.');
+        }
+
+        DB::transaction(function () use ($currentPackage, $switchPackage) {
+            // Update the current primary to false
+            $currentPackage->update(['is_primary' => false]);
+
+            // Set the new primary subscription
+            $switchPackage->update(['is_primary' => true]);
+        });
+
+        return redirect()->back()->with('success', 'Subscription switched successfully');
     }
 
 }

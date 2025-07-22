@@ -44,6 +44,15 @@ class AppServiceProvider extends ServiceProvider
             $user = Auth::user();
             $userService = app(UserService::class);
             $greeting = $userService->greetingText();
+            $subscriptions = $user->subscriptions()->orderBy('is_primary', 'desc')->get() ?: []; //Same logic has currentSubscription
+            // $subscriptions = $subscriptions->isEmpty() ? [] : $subscriptions;
+            $currentSubscription = $user->subscriptions()->where('is_primary', true)->first() ?  $user->subscriptions()->where('is_primary', true)->first() : null ;
+
+
+
+            // dd($subscriptions);
+
+
 
 
             if ($user) {
@@ -67,7 +76,7 @@ class AppServiceProvider extends ServiceProvider
 
 
 
-            $view->with(['notificationData' => $notificationData, 'greeting' => $greeting]);
+            $view->with(['notificationData' => $notificationData, 'greeting' => $greeting, 'currentSubscription' => $currentSubscription, 'subscriptions' => $subscriptions]);
         });
     }
 }

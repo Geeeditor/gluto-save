@@ -30,7 +30,7 @@
                                 <label class="text-md">Amount</label>
                             </div>
                             <div class="col-sm-8">
-                                <input type="number" readonly value="{{ $amount }}" required class="form-control input" name="payment-amount">
+                                <input type="number" readonly value="{{ $amount }}" required class="form-control input" name="amount">
                             </div>
                         </div>
 

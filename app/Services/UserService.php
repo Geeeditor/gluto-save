@@ -68,6 +68,8 @@ class UserService
             $transactionReference = 'ghep/wkpyt/' . $subID . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
         } elseif ($trxType == 'withdrawal') {
             $transactionReference = 'ghep/debit/' . Str::random(5) . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
+        } elseif ($trxType == 'wallet_fund') {
+            $transactionReference = 'ghep/credit/' . Str::random(5) . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
         } else {
             throw new \InvalidArgumentException("Invalid payment type: $trxType");
         }

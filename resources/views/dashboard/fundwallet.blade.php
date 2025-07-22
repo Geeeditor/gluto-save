@@ -24,14 +24,14 @@
                             I've Made Payment
                         </span>
                     </p> --}}
-                    <form class="d-flex flex-col gap-5 space-mobile" action="" method="POST" enctype="multipart/form-data">
+                    <form class="d-flex flex-col gap-5 space-mobile" action="{{route('dashboard.fund.store')}}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-inline align-items-center row">
                             <div class="col-sm-4">
                                 <label class="text-md">Amount</label>
                             </div>
                             <div class="col-sm-8">
-                                <input type="number"  value="" placeholder="Enter Amount" required class="form-control input" name="payment-amount">
+                                <input type="number"  value="" placeholder="Enter Amount" required class="form-control input" name="amount">
                             </div>
                         </div>
 

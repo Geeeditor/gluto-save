@@ -250,7 +250,7 @@
                                     <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
                                         <tr>
                                             <th class="px-6 py-3" scope="col">Plan Name</th>
-                                            <th class="px-6 py-3" scope="col">Amount</th>
+                                            <th class="px-6 py-3" scope="col">Weekly Payment</th>
                                             <th class="px-6 py-3" scope="col">Subscribed Date</th>
                                             <th class="px-6 py-3" scope="col">Status</th>
                                         </tr>
@@ -293,12 +293,12 @@
                                                 ];
                                             @endphp
                                             <tr class="bg-white border-b">
-                                                <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                                                <th class="px-6 py-4 font-medium text-gray-900 uppercase whitespace-nowrap"
                                                     scope="row">
                                                     {{ $subscription->tier }}
                                                 </th>
                                                 <td class="px-6 py-4">
-                                                    ₦{{ number_format($subscription->total_contribution, 2) }}</td>
+                                                    ₦{{ number_format($subscription->sub_fee, 2) }}</td>
                                                 <td class="px-6 py-4">{{ $subscription->created_at->format('d M, Y') }}
                                                 </td>
                                                 <td class="px-6 py-4">

@@ -81,7 +81,9 @@
                 <img style="width:60px" src="{{ asset('assets/images/user-group.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Total Referals <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
-                    <h2 class="m-0 text-blur">0</h2>
+                    <h2 class="m-0 text-blur">
+
+                    </h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">

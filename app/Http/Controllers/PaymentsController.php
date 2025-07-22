@@ -117,7 +117,7 @@ class PaymentsController extends Controller
 
             });
 
-            return redirect()->route('dashboard.payments')->with('success', 'Your payment  has been resubmitted successfully. Please wait for confirmation.');
+            return redirect()->route('dashboard.payments')->with('info', 'Your payment  has been resubmitted successfully. Please wait for confirmation.');
 
 
             /* DB::transaction(function () use ($user, $fileName, $transactionData, $request) {
@@ -153,6 +153,70 @@ class PaymentsController extends Controller
 
 
         return redirect()->back()->with('info', 'We could not determine your payment option');
+    }
+
+    public function walletFund(){
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+
+        // dd($profilePic);
+
+        return view('dashboard.fundwallet', ['user' => $user, 'profilePic' => $profilePic]);
+
+
+    }
+
+    public function walletFundCheckout(Request $request) {
+        $data = $request->validate([
+            'amount' => 'required',
+            'payment_method' => 'required',
+            'payment_proof' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048'
+        ]);
+
+        $user = Auth::user();
+        $trxType = 'wallet_fund';
+        $trxRef = $this->userService->generateTrxRef($trxType);
+
+
+
+        $paymentData = [
+            'amount' => $data['amount'],
+            'payment_method' => $data['payment_method'],
+            'payment_id' => $user->activeDashboard()->first()->id,
+            'payment_type' => $trxType,
+            'trxRef' => $trxRef
+        ];
+
+        // dd($paymentData['payment_id']);
+
+        if($data['payment_method'] == 'gluto_transfer'){
+            if ($request->hasFile('payment_proof')) {
+                $image = $request->file('payment_proof');
+                $fileName = 'reg' . '_' . Str::random(4) . '_' . time() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('payments/registration', $fileName, 'public');
+            }
+
+            DB::transaction(function () use ($user, $paymentData, $fileName) {
+                $user->payments()->create([
+                    'amount' => $paymentData['amount'],
+                    'payment_proof' => $fileName,
+                    'payment_id' => $paymentData['payment_id'],
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_type' => $paymentData['payment_type'],
+                    'transaction_reference' => $paymentData['trxRef']
+                ]);
+            });
+
+            return redirect()->route('dashboard.payments')->with('info', 'Your payment  has been submitted. Please wait for confirmation.');
+
+
+
+        }
+
+
+        // dd($trxRef);
+
+
     }
 
 
