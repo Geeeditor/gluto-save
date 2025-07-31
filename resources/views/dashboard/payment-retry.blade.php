@@ -4,7 +4,7 @@
 @section('content')
     <div class="relative py-3 signup">
         <div class="top-desc mb-1">
-            <h1 class="font-bold text-base md:text-3xl uppercase tracking-wide">  {{ $transaction->payment_type == 'registration' ? 'Registration' : ($transaction->payment_type == 'contribution' ? 'Contribution' : ($transaction->payment_type == 'wallet_fund' ? 'Wallet Funding' : ($transaction->payment_type == 'subscription' ? 'Subscription' : 'Unknown'))) }}  Repayment</h1>
+            <h1 class="font-bold text-base md:text-3xl uppercase tracking-wide">  {{ $transaction->payment_type == 'registration' ? 'Registration' : ($transaction->payment_type == 'contribution' ? 'Contribution' : ($transaction->payment_type == 'wallet_fund' ? 'Wallet Funding' : ($transaction->payment_type == 'subscription' ? 'Subscription' : ($transaction->payment_type == 'debt_pyt' ? 'Outstanding' : 'Unknown')))) }}  Repayment</h1>
         </div>
 
 
@@ -17,7 +17,7 @@
                 {{-- Subscription --}}
                 @if ($transaction->payment_type === 'subscription')
                     <div>
-                        <h3 class="text-md-bold text-2xl">You are about to make a repayment for <span
+                        <h3 class="text-md-bold text-2xl">You are about to make a repayment for your <span
                                 class="font-bold text-green-600 uppercase">{{ $transaction->amount == 1300.00 ? 'SAVINGS' : ($transaction->amount == 2000.00 ? 'PRO' : 'BOSS FUND') }}</span> Package </h3>
                         <h5 class="mt-2 mb-5">Note: Your Previous payment of {{ $transaction->amount }} failed, If you got a reversal kindly
                             proceed with making a new payment</h5>
@@ -25,16 +25,22 @@
 
                 @elseif ($transaction->payment_type === 'contribution')
                     <div>
-                        <h3 class="text-md-bold text-2xl">You are about to make a contribution of <span
-                                class="font-bold text-green-600 uppercase">N10,000</span> for your subscription package with
-                            account ending with ****5555 </h3>
-                        <h5 class="mt-2 mb-5">Note: Your Previous payment of N10,000.00 failed, If you got a reversal kindly
-                            proceed with making a new payment</h5>
+                        <h3 class="text-md-bold text-2xl">You are about to make a contribution repayment for <span
+                            class="font-bold text-green-600 uppercase">{{ $transaction->amount == 1300.00 ? 'SAVINGS' : ($transaction->amount == 2000.00 ? 'PRO' : 'BOSS FUND') }}</span> Package </h3>
+                            <h5 class="mt-2 mb-5">Note: Your Previous Contribution payment of {{ $transaction->amount }} failed, If you got a reversal kindly
+                                proceed with making a new payment.</h5>
                     </div>
                 @elseif ($transaction->payment_type === 'wallet_fund')
                 <div>
                     <h3 class="text-md-bold text-2xl">You are about to pay  <span
                             class="font-bold text-green-600 uppercase">N{{$transaction->amount}}</span> to top up your wallet balance. </h3>
+                    <h5 class="mt-2 mb-5">Note: Your Previous payment of N{{$transaction->amount}} failed, If you got a reversal kindly
+                        proceed with making a new payment</h5>
+                </div>
+                @elseif ($transaction->payment_type === 'debt_pyt')
+                <div>
+                    <h3 class="text-md-bold text-2xl">You are about to pay  <span
+                            class="font-bold text-green-600 uppercase">N{{$transaction->amount}}</span> to clear your outstanding. </h3>
                     <h5 class="mt-2 mb-5">Note: Your Previous payment of N{{$transaction->amount}} failed, If you got a reversal kindly
                         proceed with making a new payment</h5>
                 </div>
@@ -73,7 +79,8 @@
 
 
                     <select required class="hidden form-control select"  name="payment_type">
-                        <option value="none" {{ $transaction->payment_type === null ? 'selected' : '' }}>Select Payment Type</option>
+                        <option value="none" {{ $transaction->payment_type === 'null' ? 'selected' : '' }}>Select Payment Type</option>
+                        <option value="debt_pyt" {{ $transaction->payment_type === 'debt_pyt' ? 'selected' : '' }}>Debt Pyt</option>
                         <option value="wallet_fund" {{ $transaction->payment_type === 'wallet_fund' ? 'selected' : (old('payment_type') === 'wallet_fund' ? 'selected' : '') }}>Wallet Fund</option>
                         <option value="subscription" {{ $transaction->payment_type === 'subscription' ? 'selected' : (old('payment_type') === 'subscription' ? 'selected' : '') }}>Subscription</option>
                         <option value="contribution" {{ $transaction->payment_type === 'contribution' ? 'selected' : (old('payment_type') === 'contribution' ? 'selected' : '') }}>Contribution</option>
@@ -101,7 +108,7 @@
                             <div class="col-sm-8" style="position:relative;">
                                 <select required class="form-control select" id="payment_type" name="payment_method" onchange="togglePaymentDetails()">
                                     <option value="">Select Payment Option</option>
-                                    <option value="wallet_fund" >Pay from your Wallet Balance</option>
+                                    <option value="wallet_balance" >Pay from your Wallet Balance</option>
                                     <option value="gluto_transfer">Transfer to Gluto HEP Account</option>
                                     <option value="paystack">Pay with Paystack</option>
                                 </select>

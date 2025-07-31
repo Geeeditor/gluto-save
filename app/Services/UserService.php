@@ -20,7 +20,7 @@ class UserService
         } elseif ($currentHour < 18) {
             $greeting = "Good Afternoon";
         } else {
-            $greeting = "Hello";
+            $greeting = "Good evening";
         }
 
         return $greeting;
@@ -66,6 +66,11 @@ class UserService
                 throw new \InvalidArgumentException("subID is required for contribution transactions.");
             }
             $transactionReference = 'ghep/wkpyt/' . $subID . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
+        } elseif ($trxType == 'debt_pyt') {
+            if (is_null($subID)) {
+                throw new \InvalidArgumentException("subID is required for owings transactions.");
+            }
+            $transactionReference = 'ghep/pkgowings/' . $subID . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
         } elseif ($trxType == 'withdrawal') {
             $transactionReference = 'ghep/debit/' . Str::random(5) . '/' . substr(time(), 6, 8) . '/' . Str::random(5);
         } elseif ($trxType == 'wallet_fund') {
@@ -75,6 +80,11 @@ class UserService
         }
 
         return $transactionReference;
+    }
+
+    public function generateReceipt(){
+        $randomCode = Str::random(10); // Generate a random 10-character code
+        return 'gluto/hep/' . $randomCode;
     }
 
     public function generateAccount(User $users)

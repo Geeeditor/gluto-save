@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WithdrawalAccount extends Model
 {
@@ -13,6 +14,10 @@ class WithdrawalAccount extends Model
         'account_number', // Account number for the withdrawal
         'bank_name', // Bank name for the withdrawal
         'account_type', // Type of account (e.g., 'savings', 'current')
+        'no_bank_details',
+        'wallet_address',
+        'network',
+        'crypto_option'
     ];
 
     /**

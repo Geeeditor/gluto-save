@@ -54,10 +54,10 @@
     <div class="mt-5">
         <div class="d-flex grid-lists">
             <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
-                <img style="width:60px" src="{{ asset('assets/images/dollar-bag.png') }}">
+                <img style="width:60px" src="{{ asset('assets/images/wallet.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Wallet Balance <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
-                    <h2 class="m-0 text-blur">₦0.00</h2>
+                    <h2 class="m-0 text-blur">₦{{ number_format($user->activeDashboard->wallet_balance, 2) }}</h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">
@@ -77,12 +77,12 @@
             </div>
             </div> --}}
 
-            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 grid-col-4 align-center">
+            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
                 <img style="width:60px" src="{{ asset('assets/images/user-group.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Total Referals <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
                     <h2 class="m-0 text-blur">
-
+                        {{ $user->total_referred_users }}
                     </h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
@@ -91,12 +91,12 @@
             </div>
             </div>
 
-            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 grid-col-4 align-center">
-                <img style="width:60px" src="{{ asset('assets/images/dollar-bag-rise.png') }}">
+            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
+                <img style="width:60px" src="{{ asset('assets/images/dollar-bag.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Total Contribution <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
 
-                    <h2 class="m-0 text-blur">6</h2>
+                    <h2 class="m-0 text-blur">₦{{ number_format($totalContribution, 2) }}</h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">
@@ -104,11 +104,11 @@
                 </div>
             </div>
 
-            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 grid-col-4 align-center">
+            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
                 <img style="width:60px" src="{{ asset('assets/images/noble-debts-images.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Total Debts <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
-                    <h2 class="m-0 text-blur">₦0 </h2>
+                    <h2 class="m-0 text-blur">₦{{ number_format($totalDebt, 2) }} </h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">
@@ -116,12 +116,12 @@
             </div>
             </div>
 
-            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 grid-col-4 align-center">
+            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
                 <img style="width:60px" src="{{ asset('assets/images/dollar-bag-rise.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Total Thrift Account <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
 
-                    <h2 class="m-0 text-blur">6</h2>
+                    <h2 class="m-0 text-blur">{{$user->subscriptions()->count()}}</h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">
@@ -129,7 +129,7 @@
                 </div>
             </div>
 
-            <!-- <div class="d-flex grid-col-4 grid-col-4 align-center">
+            <!-- <div class="d-flex grid-col-4 align-center">
                 <img style="width:60px" src="{{ asset('assets/images/coin.png') }}">
                 <div>
                 <h6 class="mb-2 text-md-bold color2">Total Earnings</h6>
@@ -139,11 +139,11 @@
 
 
 
-            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 grid-col-4 align-center">
-                <img style="width:60px" src="{{ asset('assets/images/target.png') }}">
+            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
+                <img style="width:60px" src="{{ asset('assets/images/plan.png') }}">
                 <div>
-                    <h6 class="mb-2 text-md-bold">Active Plan(s) <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
-                    <h2 class="m-0 text-blur">0</h2>
+                    <h6 class="mb-2 text-md-bold">Active Plan Package <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
+                    <h2 class="m-0 text-blur uppercase">{{$currentSubscription ? $currentSubscription->tier : 'N/A'}}</h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">
@@ -154,7 +154,7 @@
                 use Carbon\Carbon;
 
 // Subscription date (today)
-$subscriptionDate = Carbon::now();
+$subscriptionDate = $currentSubscription->created_at ?? Carbon::now(); // Fallback to now if no subscription exists
 
 // Maturity date (52 weeks from today)
 $maturityDate = $subscriptionDate->copy()->addWeeks(52);
@@ -166,11 +166,11 @@ $remainingWeeks = $subscriptionDate->diffInWeeks($maturityDate);
 $maturityDateFormatted = $maturityDate->format('m/d/Y');
             @endphp
 
-            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 grid-col-4 align-center">
-                <img style="width:60px" src="{{ asset('assets/images/target.png') }}">
+            <div x-data="{ tooltip: false }" class="relative d-flex grid-col-4 align-center">
+                <img style="width:60px" src="{{ asset('assets/images/date.png') }}">
                 <div>
                     <h6 class="mb-2 text-md-bold">Maturity Date <span @click="tooltip = !tooltip" class="mdi-information-box-outline mdi"></span></h6>
-                    <h2 class="m-0 text-blur">{{ $maturityDateFormatted }} </h2>
+                    <h2 class="m-0 text-blur">{{ $currentSubscription ? $maturityDateFormatted : 'N/A' }} </h2>
                 </div>
                 <div x-transition x-show="tooltip" @click.outside="tooltip = false"
                 class="hover:block top-6 left-0 z-10 absolute bg-white shadow-lg p-2 rounded-md w-full text-black">
@@ -191,7 +191,7 @@ $maturityDateFormatted = $maturityDate->format('m/d/Y');
 
 
 
-            <div class="grid-col-4 grid-col-4 d-fle d-none align-center">
+            <div class="grid-col-4 d-fle d-none align-center">
                 <img style="width:60px" src="https://cdn-icons-png.flaticon.com/128/4285/4285550.png">
                 <div>
                     <h6 class="mb-2 text-md-bold color3">Current Thrift Weeks</h6>

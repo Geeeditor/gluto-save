@@ -55,7 +55,7 @@
                             <div class="col-sm-8" style="position:relative;">
                                 <select required class="form-control select" id="payment_type" name="payment_method" onchange="togglePaymentDetails()">
                                     <option value="">Select Payment Option</option>
-                                    <option value="wallet_fund">Pay from your Wallet Balance</option>
+                                    <option value="wallet_balance">Pay from your Wallet Balance</option>
                                     <option value="gluto_transfer">Transfer to Gluto HEP Account</option>
                                     <option value="paystack">Pay with Paystack</option>
                                 </select>

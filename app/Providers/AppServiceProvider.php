@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\AppSetting;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.auth', function ($view) {
             $user = Auth::user();
             $userService = app(UserService::class);
+            $settings = AppSetting::first() ;
+            // dd($settings);
             $greeting = $userService->greetingText();
             $subscriptions = $user->subscriptions()->orderBy('is_primary', 'desc')->get() ?: []; //Same logic has currentSubscription
             // $subscriptions = $subscriptions->isEmpty() ? [] : $subscriptions;
@@ -76,7 +79,7 @@ class AppServiceProvider extends ServiceProvider
 
 
 
-            $view->with(['notificationData' => $notificationData, 'greeting' => $greeting, 'currentSubscription' => $currentSubscription, 'subscriptions' => $subscriptions]);
+            $view->with(['notificationData' => $notificationData, 'greeting' => $greeting, 'currentSubscription' => $currentSubscription, 'subscriptions' => $subscriptions, 'settings' => $settings ]);
         });
     }
 }

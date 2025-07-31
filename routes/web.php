@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\PaymentsController;
+use League\Config\Configuration;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ConfigurationController;
 
 
 Route::get('/', function () {
@@ -28,6 +30,19 @@ Route::get('/contact-us', function () {
 
 // Public route for subscription plans
 Route::get('/dashboard/plan', [DashboardController::class, 'subscribe'])->name('plan');
+
+Route::get('/admin/config', [ConfigurationController::class, 'redirectConfigLayout'])->name('platform.settings');
+
+Route::get('/admin/config/create', [ConfigurationController::class, 'index'])->middleware('admin')->name('platform.config.index');
+
+Route::get('/admin/config/update', [ConfigurationController::class, 'update'])->middleware('admin')->name('platform.config.update');
+
+Route::post('/admin/config/save', [ConfigurationController::class, 'save'])->middleware('admin')->name('platform.config.save');
+
+Route::put('/admin/config/update/{id}', [ConfigurationController::class, 'updateConfig'])->middleware('admin')->name('platform.config.update-config');
+
+
+// Route::screen('/app/admin/config/app', AppSettings::class)->name('platform.settings.config');
 
 
 
@@ -58,6 +73,16 @@ Route::middleware('user')->group(function () {
 
     Route::get('/dashboard/payments', [PaymentsController::class, 'index'])->name('dashboard.payments');
 
+    Route::get('/dashboard/payout', [PaymentsController::class, 'payoutinfo'])->name('dashboard.withdrawal');
+
+    Route::post('/dashboard/payout/create', [PaymentsController::class, 'storeWithdrawalAccount'])->name('withdrawal.accounts.store');
+
+    Route::get('dashboard/payout/accounts/{id}/edit', [PaymentsController::class, 'editWithdrawalAccount'])->name('withdrawal.accounts.edit');
+
+    Route::put('dashboard/payout/accounts/{id}', [PaymentsController::class, 'updateWithdrawalAccount'])->name('withdrawal.accounts.update');
+
+    Route::delete('dashboard/payout/accounts/{id}', [PaymentsController::class, 'destroyWithdrawalAccount'])->name('withdrawal.accounts.destroy');
+
     Route::get('/dashboard/payment/retry/{id}', [PaymentsController::class, 'retryPayment'])->name('dashboard.payments.retry');
 
     Route::put('/dashboard/payment/update/{id}', [PaymentsController::class, 'updatePayment'])->name('dashboard.payments.update');
@@ -74,9 +99,23 @@ Route::middleware('user')->group(function () {
 
     Route::put('dashboard/subscription/switch', [DashboardController::class, 'switchPackage'])->name('subscription.switch');
 
+    Route::get('/dashboard/contribution', [DashboardController::class, 'contribution'])->name('dashboard.contribution');
+
+    Route::post('/dashboard/contribution/store', [PaymentsController::class, 'makeContribution'])->name('dashboard.contribution.store');
+
     Route::get('/dashboard/fund', [PaymentsController::class, 'walletfund'])->name('dashboard.fund');
 
     Route::post('/dashboard/fund/checkout', [PaymentsController::class, 'walletfundCheckout'])->name('dashboard.fund.store');
+
+
+   Route::get('/dashboard/plan/debt', [DashboardController::class, 'defaultedPayment'])->name('dashboard.defaulted-payment');
+
+   Route::get('/dashboard/withdrawal', [DashboardController::class, 'withdrawal'])->name('dashboard.make-withdrawal');
+
+   Route::post('/dashboard/plan/debt/store', [PaymentsController::class, 'clearDefaultStore'])->name('dashboard.defaulted-payment.store');
+
+
+    Route::put('/dashboard/contribtion/claim/{sub_id}', [PaymentsController::class, 'claimContribution'])->name('dashboard.contribution.claim');
 
 });
 

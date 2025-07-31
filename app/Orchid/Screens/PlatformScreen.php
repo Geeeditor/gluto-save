@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Orchid\Screens;
 
+use App\Models\User;
+use Orchid\Screen\TD;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
 
@@ -16,7 +18,9 @@ class PlatformScreen extends Screen
      */
     public function query(): iterable
     {
-        return [];
+        return [
+            'users' => User::all(), // Fetch all users
+        ];
     }
 
     /**
@@ -24,7 +28,7 @@ class PlatformScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'Get Started';
+        return 'Admin Dashboard';
     }
 
     /**
@@ -32,7 +36,7 @@ class PlatformScreen extends Screen
      */
     public function description(): ?string
     {
-        return 'Welcome to your Orchid application.';
+        return 'Welcome, Manage Users Action With Application Settings Seemlessly.';
     }
 
     /**
@@ -53,8 +57,15 @@ class PlatformScreen extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::view('platform::partials.update-assets'),
-            Layout::view('platform::partials.welcome'),
+            // Layout::view('platform::partials.update-assets'),
+            // Layout::view('platform::partials.welcome'),
+
+            Layout::table('users', [
+                TD::make('id', 'ID')->width('100'),
+                TD::make('name', 'Name'),
+                TD::make('email', 'Email'),
+                TD::make('created_at', 'Created At')->render(fn($user) => $user->created_at->format('Y-m-d H:i:s')),
+            ]),
         ];
     }
 }

@@ -4,7 +4,7 @@
 @section('content')
     <div class="form-container">
 
-        <a href="home"><img src="{{ asset('images/logo.png') }}" class="mx-auto"></a>
+        <a href="/"><img src="{{ asset('images/logo.png') }}" class="mx-auto h-[150px]"></a>
 
         <div class="form-desc">
             <h1 class="top-title">Create an Account</h1>

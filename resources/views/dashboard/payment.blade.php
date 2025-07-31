@@ -36,7 +36,7 @@
                 @foreach ( $paymentHistory as $payment )
                 <tr class="hover:bg-gray-50 border-gray-200 border-b cursor-pointer">
                     <td class="px-6 py-4 font-medium whitespace-nowrap">
-                        {{ $payment->payment_type == 'registration' ? 'Registration' : ($payment->payment_type == 'contribution' ? 'Contribution' : ($payment->payment_type == 'wallet_fund' ? 'Wallet Funding' : ($payment->payment_type == 'subscription' ? 'Subscription' : 'Unknown'))) }}
+                        {{ $payment->payment_type == 'registration' ? 'Registration' : ($payment->payment_type == 'contribution' ? 'Contribution' : ($payment->payment_type == 'wallet_fund' ? 'Wallet Funding' : ($payment->payment_type == 'subscription' ? 'Subscription' : ($payment->payment_type == 'debt_pyt' ? 'Debt Pyt' : 'Unknown')))) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{ $payment->transaction_reference }}

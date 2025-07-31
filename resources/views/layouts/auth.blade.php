@@ -51,7 +51,7 @@
     <!-- SIDEBAR STARTS -->
     <div class="sidebar">
         <div class="sidebar-top d-flex justify-content-center">
-            <a class="d-block-desktop" href="index"><img
+            <a class="d-block-desktop" href="{{route('index')}}"><img
                     style="height: 100px; filter: drop-shadow(0.5px 0.5px 2.5px white);"
                     src="{{ asset('images/logo-stroke.png') }}"></a>
 
@@ -106,11 +106,10 @@
                     <a href="{{ route('dashboard.kyc.status') }}" class="text-white sidebar-navigation-list">&raquo;
                         KYC Status</a>
 
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list">&raquo; Manage Withdrawal
+                    <a href="{{ route('dashboard.withdrawal') }}" class="text-white sidebar-navigation-list">&raquo; Manage Withdrawal
                         Accounts</a>
 
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list">&raquo; Add Withdrawal
-                        Account</a>
+
                 </div>
             </div>
 
@@ -172,11 +171,25 @@
                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
             </a>
 
+            <a href="{{ route('dashboard.make-withdrawal') }}" class="d-flex sidebar-navigation-list align-center">
+                <img src="{{ asset('/images/icons/topup.svg') }}">
+                <!--<i style="font-size:15px;" class="text-white ri-file-lock-line"></i>-->
+                <span class="text-white">Make Withdrawal</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
 
-            <div class="sidebar-dropdown">
-                <a href="javascript:void();" class="d-flex sidebar-navigation-list sidebar-menu-link align-center">
+            <a href="{{ route('dashboard.payments') }}" class="d-flex sidebar-navigation-list align-center">
+                <img src="{{ asset('/images/icons/serialized.svg') }}">
+                <!--<i style="font-size:15px;" class="text-white ri-file-lock-line"></i>-->
+                <span class="text-white">Payment History</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
+
+
+            {{-- <div class="sidebar-dropdown">
+                <a href="{{ route('dashboard.payments') }}" class="d-flex sidebar-navigation-list sidebar-menu-link align-center">
                     <img src="{{ asset('/images/icons/serialized.svg') }}">
-                    <span class="text-white">Transaction(s)</span>
+                    <span class="text-white">Payment History(s)</span>
                     <i class="ri-arrow-right-s-line text-white nav-icon"></i>
                 </a>
 
@@ -187,7 +200,7 @@
                         History</a>
                     <a href="" class="text-white sidebar-navigation-list">&raquo; Withdrawal History</a>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- settlement accounts ends here -->
             <!-- settlement accounts ends here -->
@@ -204,13 +217,19 @@
             </a>
 
 
-            <a href="javascript:void();" class="d-flex sidebar-navigation-list align-center">
+            <a  href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ? route('dashboard.contribution') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex  sidebar-navigation-list align-center">
                 <img class="" src="{{ asset('/images/icons/contribute.svg') }}">
                 <span class="text-white">Make Contribution</span>
                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
             </a>
 
-            <a href="javascript:void();" class="d-flex sidebar-navigation-list align-center">
+            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.defaulted-payment') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
+                <img class="" src="{{ asset('/images/icons/default.svg') }}">
+                <span class="text-white">Clear Defaulted Payment</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
+
+            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.subscriptions') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
                 <img src="{{ asset('/images/icons/claim.svg') }}">
                 <span class="text-white">Claim Contribution</span>
                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
@@ -224,12 +243,12 @@
                 </a>-->
 
 
-            <a href="javascript:void();" class="d-flex sidebar-navigation-list align-center">
+            {{-- <a href="javascript:void();" class="d-flex sidebar-navigation-list align-center">
                 <!-- <img src="assets/images/graph.png"> -->
                 <i style="font-size:15px;" class="text-white ri-file-lock-line"></i>
                 <span class="text-white">Settings</span>
                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
+            </a> --}}
 
             <!-- 		<a href="wallet-transaction" class="d-flex sidebar-navigation-list align-center">
                 <i style="font-size:15px;" class="text-white ri-wallet-3-line"></i>
@@ -257,7 +276,7 @@
     <!-- SIDEBAR ENDS -->
     <div class="main-container">
         <header class="d-flex header align-center space-between">
-            <a class="d-mobile mobile-logo" href="dashboard"> <img
+            <a class="d-mobile mobile-logo" href="{{route('index')}}"> <img
                     style="height: 50px;  filter: drop-shadow(0.5px 0.5px 2.5px white);"
                     src="{{ asset('images/logo-stroke.png') }}"></a>
 
@@ -389,7 +408,7 @@
 
         <div class="relative main-content-body">
             <div
-                class="hidden right-0 bottom-3 z-[600] fixed space-y-6 mx-auto mt-4 w-fit flash-message tray-success animate__animated">
+                class="hidden right-0 bottom-3 z-[600] fixed space-y-6 mx-auto mt-4 w-fit md:w-[40%] flash-message tray-success animate__animated">
                 @if (session()->has('success'))
                     <div class="flex items-center bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] p-4 rounded-md text-slate-900"
                         role="alert">

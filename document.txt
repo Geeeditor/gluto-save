@@ -10,6 +10,7 @@ contribution
 subscription
 registration
 wallet_fund
+payment_default
 
 Payments Status
 pending

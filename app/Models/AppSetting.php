@@ -14,10 +14,14 @@ class AppSetting extends Model
         'app_favicon',
         'app_email',
         'app_phone',
+        'support_email',
         'app_address',
         'app_social_links', // JSON field for social media links
-        'app_terms_conditions', // JSON field for terms and conditions
-        'app_privacy_policy', // JSON field for privacy policy
+        'contribution_enabled',
+        'subscription_enabled',
+        'withdrawal_enabled'
+        // 'app_terms_conditions', // JSON field for terms and conditions
+        // 'app_privacy_policy', // JSON field for privacy policy
     ];
 
 }

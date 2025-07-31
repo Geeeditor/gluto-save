@@ -232,9 +232,26 @@
                                         {{-- sub_fee * 52 / total_contribution --}}
                                         {{-- (total_contribution / sub_fee * 52 ) * 100 --}}
                                     </div>
-                                    <p class="mt-1 text-gray-500 text-sm">{{ $currentSubscription->total_contribution / $currentSubscription->sub_fee }} / 52
+                                    <p class="mt-1 text-gray-500 text-sm">{{ round($currentSubscription->total_contribution / $currentSubscription->sub_fee, 2) }} / 52
                                         weeks completed</p>
                                 </div>
+                                {{-- {{dd($currentStatus['label'])}} --}}
+                                @if($currentStatus['label'] == 'Matured')
+                                <form method="post" class="flex md:justify-self-end items-center gap-2 bg-orange-500 hover:bg-orange-600 shadow mt-3 px-4 py-2 rounded-lg w-fit text-white"action="{{ route('dashboard.contribution.claim', ['sub_id' => $currentSubscription->sub_id ]) }}"">
+                                    @csrf
+                                    @method('put')
+
+
+                                    <button   class="flex justify-center items-center"
+
+                                    >
+                                    <span>Claim Contribution</span>
+                                    <img class="w-[20px] h-[20px]" src="{{asset('images/icons/claim.svg')}}" alt="">
+                                </button>
+                                </form>
+
+                                @endif
+
 
                             </div>
                         @else
@@ -249,9 +266,11 @@
                                 <table class="w-full text-gray-500 text-sm text-left">
                                     <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
                                         <tr>
-                                            <th class="px-6 py-3" scope="col">Plan Name</th>
+                                            <th class="px-6 py-3" scope="col">Sub ID</th>
                                             <th class="px-6 py-3" scope="col">Weekly Payment</th>
                                             <th class="px-6 py-3" scope="col">Subscribed Date</th>
+                                            <th class="px-6 py-3" scope="col">Maturity Date</th>
+                                            <th class="px-6 py-3" scope="col">Defaulted Week(s)</th>
                                             <th class="px-6 py-3" scope="col">Status</th>
                                         </tr>
                                     </thead>
@@ -295,11 +314,18 @@
                                             <tr class="bg-white border-b">
                                                 <th class="px-6 py-4 font-medium text-gray-900 uppercase whitespace-nowrap"
                                                     scope="row">
-                                                    {{ $subscription->tier }}
+                                                    {{ $subscription->sub_id }}
                                                 </th>
                                                 <td class="px-6 py-4">
                                                     ₦{{ number_format($subscription->sub_fee, 2) }}</td>
                                                 <td class="px-6 py-4">{{ $subscription->created_at->format('d M, Y') }}
+                                                </td>
+                                                <td class="px-6 py-4">{{ $subscription->created_at->format('d M, Y') }}
+                                                </td>
+                                                <td class="flex items-center gap-1 px-6 py-4">
+                                                    ₦ {{ number_format($subscription->defaulted_weeks * $subscription->sub_fee, 2) }}
+                                                    <span class="text-[10px]">({{ $subscription->defaulted_weeks }})
+                                                    </span>
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <span

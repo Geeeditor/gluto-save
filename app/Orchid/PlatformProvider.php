@@ -34,61 +34,65 @@ class PlatformProvider extends OrchidServiceProvider
     public function menu(): array
     {
         return [
-            Menu::make('Get Started')
-                ->icon('bs.book')
-                ->title('Navigation')
-                ->route(config('platform.index')),
+            Menu::make('Dashboard')
+                ->icon('bs.window-dock')
+                ->route('platform.main')
+                ->title('Navigation'),
 
-            Menu::make('Sample Screen')
-                ->icon('bs.collection')
-                ->route('platform.example')
-                ->badge(fn () => 6),
+            Menu::make('Manage Payments')
+                ->icon('bs.wallet')
+                ->route('platform.payments')
+                ->divider(),
 
-            Menu::make('Form Elements')
+                // ->route('platform.payments.view'),
+
+            // Menu::make('Update Payments')
+            //     ->icon('bs.pencil')
+            //     // ->route('platform.payments.update')
+
+
+            Menu::make('Manage KYC Application')
+                ->icon('bs.file-earmark-check')
+                ->route('platform.kyc.list')
+                ->divider(),
+
+            // Menu::make('Update KYC Applications')
+            //     ->icon('bs.check-circle')
+            //     // ->route('platform.kyc.update')
+            //     ->divider(),
+
+            Menu::make('Manage User Dashboard')
+                ->icon('bs.person-lines-fill')
+                ->route('platform.user-dashboard')
+                ->divider(),
+
+            // Menu::make('Update User Dashboard Status')
+            //     ->icon('bs.graph-up')
+            //     // ->route('platform.dashboard.update')
+            //     ->divider(),
+
+            Menu::make('Manage Subscriptions')
                 ->icon('bs.card-list')
-                ->route('platform.example.fields')
-                ->active('*/examples/form/*'),
-
-            Menu::make('Layouts Overview')
-                ->icon('bs.window-sidebar')
-                ->route('platform.example.layouts'),
-
-            Menu::make('Grid System')
-                ->icon('bs.columns-gap')
-                ->route('platform.example.grid'),
-
-            Menu::make('Charts')
-                ->icon('bs.bar-chart')
-                ->route('platform.example.charts'),
-
-            Menu::make('Cards')
-                ->icon('bs.card-text')
-                ->route('platform.example.cards')
+                ->route('platform.user-subscription')
                 ->divider(),
 
-            Menu::make(__('Users'))
-                ->icon('bs.people')
-                ->route('platform.systems.users')
-                ->permission('platform.systems.users')
-                ->title(__('Access Controls')),
+            // Menu::make('Update Subscription Data')
+            //     ->icon('bs.card-checklist')
+            //     // ->route('platform.subscriptions.update')
+            //     ->divider(),
 
-            Menu::make(__('Roles'))
-                ->icon('bs.shield')
-                ->route('platform.systems.roles')
-                ->permission('platform.systems.roles')
+            Menu::make('Manage Withdrawal ')
+                ->icon('bs.arrow-left-right'),
+            // ->route('platform.withdrawals.view')
+
+            Menu::make('App Settings')
+                ->icon('bs.gear')
+                ->route('platform.settings')
                 ->divider(),
 
-            Menu::make('Documentation')
-                ->title('Docs')
-                ->icon('bs.box-arrow-up-right')
-                ->url('https://orchid.software/en/docs')
-                ->target('_blank'),
 
-            Menu::make('Changelog')
-                ->icon('bs.box-arrow-up-right')
-                ->url('https://github.com/orchidsoftware/platform/blob/master/CHANGELOG.md')
-                ->target('_blank')
-                ->badge(fn () => Dashboard::version(), Color::DARK),
+
+
         ];
     }
 

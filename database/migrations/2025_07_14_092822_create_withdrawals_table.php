@@ -15,10 +15,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 10, 2); // Amount to be withdrawn
-            $table->string('account_name'); // Account name for the withdrawal
-            $table->string('account_number'); // Account number for the withdrawal
-            $table->string('bank_name'); // Bank name for the withdrawal
-            $table->string('account_type')->default('savings'); // Type of account (e.g., 'savings', 'current')
+
+            // Fields for account withdrawal
+            $table->string('account_name')->nullable(); // Account name for the withdrawal (nullable for wallet withdrawals)
+            $table->string('account_number')->nullable(); // Account number for the withdrawal (nullable for wallet withdrawals)
+            $table->string('bank_name')->nullable(); // Bank name for the withdrawal (nullable for wallet withdrawals)
+
+            // Fields for wallet withdrawal
+            $table->string('wallet_address')->nullable(); // Wallet address for cryptocurrency withdrawal (nullable for account withdrawals)
+            $table->string('network')->nullable(); // Network for cryptocurrency (nullable for account withdrawals)
+
             $table->string('withdrawal_status')->default('pending'); // Status of the withdrawal
             $table->string('transaction_reference')->unique(); // Reference for the withdrawal transaction
             $table->timestamps();

@@ -199,8 +199,32 @@ class DashboardController extends Controller
 
         // dd($regPayment);
 
-        $notifications = DB::table('notifications')->where('notifiable_id', $user->id)->get();
+        $notifications = DB::table('notifications')
+            ->where('notifiable_id', $user->id)
+            ->orderBy('created_at', 'desc') // Sort by date descending
+            ->take(2) // Get the latest two notifications
+            ->get();
         $notificationData = [];
+        $subscriptions = $user->subscriptions()->get();
+        $totalContribution = 0;
+        $totalDebt = 0;
+        $currentSubscription = $user->subscriptions()->where('is_primary', true)->first() ? $user->subscriptions()->where('is_primary', true)->first() : null;
+
+        // Check if subscriptions are not empty
+        if ($subscriptions->isNotEmpty()) {
+            // Use sum method to calculate total contributions
+            // $totalContribution = $subscriptions->sum('total_contribution');
+            $totalContribution = $currentSubscription->total_contribution;
+
+            foreach ($subscriptions as $subscription) {
+                // Calculate the debt for each subscription
+                $debtForSubscription = $subscription->defaulted_weeks * $subscription->sub_fee;
+                $totalDebt += $debtForSubscription; // Add to total debt
+            }
+
+
+        }
+            // dd($totalDebt);
 
         foreach ($notifications as $notification) {
             // Decode the entire 'data' field, which is a JSON string
@@ -218,7 +242,7 @@ class DashboardController extends Controller
         if(is_null($accountActive) || is_null($payment)) {
             return view('dashboard.account', ['user' => $user, 'profilePic' => $profilePic, 'payment' => $payment]);
         } elseif( $payment->payment_status == 'approved' || $accountActive->dashboard_status == true) {
-            return view('dashboard.dashboard', ['user' => $user, 'profilePic' => $profilePic,'notificationData' => $notificationData, 'payment' => $payment]);
+            return view('dashboard.dashboard', ['user' => $user, 'profilePic' => $profilePic,'notificationData' => $notificationData, 'payment' => $payment, 'totalContribution' => $totalContribution, 'totalDebt' => $totalDebt, 'currentSubscription' => $currentSubscription]);
         } elseif(!is_null($accountActive) && $payment->payment_status == 'pending' || $payment->payment_status == 'failed') {
             return view('dashboard.account-lobby', ['user' => $user, 'profilePic' => $profilePic, 'payment' => $payment]);
         }
@@ -227,6 +251,7 @@ class DashboardController extends Controller
             'user' => $user,
             'profilePic' => $profilePic,
             'payment' => $payment,
+
         ]);
 
 
@@ -455,8 +480,52 @@ class DashboardController extends Controller
             'sub_fee' => $amount
         ];
 
-        if($data['payment_method'] == 'wallet_fund'){
-            return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
+        if($data['payment_method'] == 'wallet_balance'){
+            $activeDashboard = $user->activeDashboard()->first();
+
+
+            if($subscription['amount'] > $activeDashboard->wallet_balance) {
+                return redirect()->back()->with('error', 'Insufficient Wallet Balance');
+            }
+
+
+
+            $receipt = $this->userService->generateReceipt();
+
+
+
+            DB::transaction(function () use ($user,  $subscription, $request, $activeDashboard, $receipt) {
+                $activeDashboard->decrement('wallet_balance', $subscription['amount']);
+
+                $activeSub = $user->subscriptions()->where('is_primary', true)->update(['is_primary' => false]);
+
+                $package = $user->subscriptions()->create([
+                    'tier' => $subscription['plan'],
+                    'is_primary' => true,
+                    'sub_id' => $subscription['sub_id'],
+                    'sub_fee' => $subscription['sub_fee'],
+                    'package_status' => 'active'
+                ]);
+
+                $user->payments()->create([
+                    // 'payment_proof' => $fileName,
+                    'amount' => $subscription['amount'],
+                    'transaction_reference' => $subscription['trxRef'],
+                    'payment_method' => $subscription['payment_method'],
+                    'payment_type' => $subscription['payment_type'],
+                    'payment_id' => $package->id,
+                    'payment_status' => 'approved',
+                    'receipt' => $receipt
+                ]);
+
+                $request->session()->forget(['subscription_plan', 'subscription_amount']);
+
+            });
+
+            return redirect()->route('dashboard.subscriptions')->with('info', 'Your order has been processed');
+
+
+
         } elseif ($data['payment_method'] == 'gluto_transfer') {
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
@@ -495,10 +564,7 @@ class DashboardController extends Controller
         }
 
 
-
-
-
-        return redirect()->back()->with('info', 'We could not determine your payment option');
+        return redirect()->back()->with('info', 'We could not determine your payment method');
     }
 
     public function switchPackage(Request $request)
@@ -533,5 +599,87 @@ class DashboardController extends Controller
         return redirect()->back()->with('success', 'Subscription switched successfully');
     }
 
+    public function contribution()
+    {
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+        $userKYC = null;
+
+        // Fetch all subscriptions for the user
+        $currentSubscription = $user->subscriptions()->where('is_primary', true)->first();
+        $subscriptions = $user->subscriptions()->get();
+
+        if ($currentSubscription == null) {
+            return redirect()->route('dashboard.subscriptions')->with('info', 'You don\'t have a subscription package');
+        };
+        // dd($currentSubscription);
+
+        return view('dashboard.contribution', [
+            'user' => $user,
+            'profilePic' => $profilePic,
+            'currentSubscription' => $currentSubscription,
+            'subscriptions' => $subscriptions
+        ]);
+    }
+
+
+    public function defaultedPayment() {
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+        $userKYC = null;
+
+        // Fetch all subscriptions for the user
+        $currentSubscription = $user->subscriptions()->where('is_primary', true)->first();
+        $subscriptions = $user->subscriptions()->get();
+
+        if ($currentSubscription == null) {
+            return redirect()->route('dashboard.subscriptions')->with('info', 'You don\'t have a subscription package');
+        }
+
+        if($currentSubscription->defaulted_weeks >= 1)
+        {
+
+        // dd($currentSubscription);
+
+        return view('dashboard.defaulted-payment', [
+            'user' => $user,
+            'profilePic' => $profilePic,
+            'currentSubscription' => $currentSubscription,
+            'subscriptions' => $subscriptions
+        ]);
+
+        }
+
+        return redirect()->route('dashboard.subscriptions')->with('info', 'There are no outstanding debts on your current subscription package. Please consider switching to a package for which you have missed payments.');
+    }
+
+    public function withdrawal() {
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+        $userKYC = $user->kyc()->first();
+        $dashboard = $user->activeDashboard()->first();
+
+        // Fetch all subscriptions for the user
+        // $currentSubscription = $user->subscriptions()->where('is_primary', true)->first();
+        $withdrawalAccount = $user->withdrawalAccounts()->get();
+
+        if ($withdrawalAccount == null ) {
+            return redirect()->route('dashboard.withdrawal')->with('info', 'You don\'t have a subscription package');
+        }
+
+        if ($userKYC == null ) {
+            return redirect()->route('dashboard.kyc')->with('info', 'Please submit your KYC documents');
+        }
+
+        return view('dashboard.make-withdrawal', [
+            'user' => $user,
+            'profilePic' => $profilePic,
+            'withdrawalAccount' => $withdrawalAccount,
+            'dashboard' => $dashboard
+        ]);
+        
+    }
+
 }
+
 

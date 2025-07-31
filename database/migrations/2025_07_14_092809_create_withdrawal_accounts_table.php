@@ -13,13 +13,24 @@ return new class extends Migration
     {
         Schema::create('withdrawal_accounts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('account_name'); // Name of the withdrawal account
-            $table->string('account_number', 10); // Account number for the withdrawal
-            $table->string('bank_name'); // Bank name for the withdrawal
-            $table->string('account_type')->default('savings'); // Type of account (e.g., 'savings', 'current')
-            $table->timestamps();
-            $table->index('user_id');
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    
+    // Fields for bank details
+    $table->string('account_name')->nullable(); // Name of the withdrawal account
+    $table->string('account_number', 10)->nullable(); // Account number for the withdrawal
+    $table->string('bank_name')->nullable(); // Bank name for the withdrawal
+    $table->string('account_type')->nullable(); // Type of account (e.g., 'savings', 'current')
+
+    // Fields for cryptocurrency wallet
+    $table->string('wallet_address')->nullable(); // Wallet address for cryptocurrency
+    $table->string('network')->nullable(); // Network (e.g., Ethereum, Bitcoin)
+    $table->string('crypto_option')->nullable(); // Selected cryptocurrency option
+
+    // Additional field to indicate if bank details are not provided
+    $table->boolean('no_bank_details')->default(false); // Flag to indicate no bank details
+
+    $table->timestamps();
+    $table->index('user_id');
         });
     }
 
