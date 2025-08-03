@@ -109,7 +109,7 @@ class UpdateUserPayment extends Screen
                     'failed' => 'Failed',
                 ])
                 ->required()
-                ->disabled($this->payment->payment_status === 'approved'),
+                ->disabled($this->payment->payment_status == 'approved'),
 
             Button::make('Update Payment')
                 ->method('updatePayment')

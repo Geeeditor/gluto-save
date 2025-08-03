@@ -5,26 +5,9 @@ namespace App\Orchid\Screens;
 use App\Models\Payments;
 use Orchid\Screen\Screen;
 use Orchid\Screen\Repository;
-
-use Orchid\Screen\TD;
-use App\Models\Payment;
-// use App\Models\Payments;
-use Orchid\Screen\Action;
-// use Orchid\Screen\Layout;
-// use Orchid\Screen\Screen;
-use Orchid\Support\Color;
-use Illuminate\Http\Request;
-// use Orchid\Screen\Repository;
-use Orchid\Screen\Fields\Input;
-use Orchid\Screen\Layouts\Rows;
-use Orchid\Screen\Layouts\Table;
-use App\Models\ActivateDashboard;
-use Orchid\Screen\Actions\Button;
-use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
-use Orchid\Platform\Notifications\DashboardMessage;
 
-class UserPayments extends Screen
+class Idea extends Screen
 {
     /**
      * Fetch data to be displayed on the screen.
@@ -36,8 +19,7 @@ class UserPayments extends Screen
         $userPayments = Payments::with('user')->get();
 
 
-        $payments = $userPayments->map(function($payment)
-        {
+        $payments = $userPayments->map(function ($payment) {
 
 
 
@@ -71,13 +53,16 @@ class UserPayments extends Screen
 
             $paymentData[] = [
                 'id' => $payment->id,
+                'name' => $payment->user->name,
                 'payment_type' => $paymentType,
                 'amount' => $payment->amount,
                 'payment_method' => $payment->payment_method,
                 'payment_status' => $payment->payment_status,
                 'transaction_reference' => $payment->transaction_reference,
                 'payment_id' => $payment->payment_id,
-                'payment_proof' => $payment->payment_proof
+                'payment_proof' => $payment->payment_proof,
+                'created_at' => $payment->created_at,
+                'updated_at' => $payment->updated_at,
             ];
         }
 
@@ -88,8 +73,8 @@ class UserPayments extends Screen
             'payments' => $payments,
             'paymentData' => $paymentData,
             'metric' => [
-                'total_payments' => Payments::count(),
-            ]
+                    'total_payments' => Payments::count(),
+                ]
         ];
     }
 
@@ -100,7 +85,7 @@ class UserPayments extends Screen
      */
     public function name(): ?string
     {
-        return 'User Payments';
+        return 'Idea';
     }
 
     /**
@@ -121,34 +106,9 @@ class UserPayments extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::metrics(
-                ['Total Submitted Payments' => 'metric.total_payments']
-            ),
+            // Layout::view('platform::partials.update-assets'),
 
-            Layout::table(
-                'payments', [
-                    TD::make('id', 'ID'),
-                    TD::make('user.name', 'User ID')->width('100px')->cantHide(),
-                    TD::make('amount', 'Amount'),
-                    TD::make('transaction_reference', 'Trx Ref'),
-                    TD::make('payment_method', 'Payment Method'),
-                    TD::make('paymentData.payment_type', 'Payment Type'),
-                    TD::make('payment_status', 'Payment Status'),
-                    TD::make('action', 'Action')->render(function ($payment) {
-                        return Button::make('VIew More')
-                            ->method('getPayment')
-                            ->parameters(['id' => $payment['id']])
-                            ;
-                    }),
-                ]
-            )
+            Layout::view('platform::dummy.payments')
         ];
-    }
-
-    public function getPayment(Request $request)
-    {
-        $paymentId = $request->get('id');
-
-        return redirect()->route('platform.payments.update', ['id' => $paymentId]);
     }
 }

@@ -16,7 +16,9 @@ class Withdrawal extends Model
         'withdrawal_status', // Status of the withdrawal (e.g., 'pending', 'completed', 'failed')
         'transaction_reference', // Unique reference for the withdrawal transaction
         'amount', // Amount to withdraw
-
+        'wallet_address',
+        'network',
+        'crypto_option'
 
     ];
 

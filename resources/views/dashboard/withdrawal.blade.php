@@ -4,8 +4,9 @@
 @section('content')
     <div x-data="{ modal: false }" class="relative p-6">
         <!-- Modal for Adding Withdrawal Account -->
-        <div x-transition x-show="modal" class="z-[999] fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 blur-bg">
-            <form  method="POST" action="{{ route('withdrawal.accounts.store') }}"
+        <div id="modal" x-transition x-show="modal"
+            class="z-[999] fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 blur-bg">
+            <form method="POST" action="{{ route('withdrawal.accounts.store') }}"
                 class="flex flex-col bg-white shadow-md p-8 rounded-lg w-[90%] max-w-lg">
                 @csrf <!-- Add CSRF token for security -->
 
@@ -36,9 +37,11 @@
                         </label>
                         <label class="flex flex-col">
                             <span class="font-medium text-[#111518]">Account Type</span>
-                            <select name="account_type" class="flex flex-1 bg-[#f0f3f4] p-4 border-none focus:border-none rounded-lg focus:outline-0 focus:ring-0 w-full min-w-0 h-14" required>
+                            <select name="account_type"
+                                class="flex flex-1 bg-[#f0f3f4] p-4 border-none focus:border-none rounded-lg focus:outline-0 focus:ring-0 w-full min-w-0 h-14"
+                                required>
                                 <option value="savings" selected>Savings</option>
-                                <option value="current" >Current</option>
+                                <option value="current">Current</option>
                             </select>
 
                         </label>
@@ -46,8 +49,24 @@
                 </div>
 
                 <div class="flex items-center mb-4">
-                    <input type="checkbox" name="no_bank_details" id="no_bank_details" value="1" class="mr-2" />
-                    <label for="no_bank_details" class="text-[#111518]">I don't want to add bank details</label>
+
+
+                    <div class="checkbox-container">
+                        <label class="ios-checkbox red">
+                            <input type="checkbox" name="no_bank_details" id="no_bank_details" value="1" />
+                            <div class="checkbox-wrapper">
+                                <div class="checkbox-bg"></div>
+                                <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none">
+                                    <path class="check-path" d="M4 12L10 18L20 6" stroke="currentColor" stroke-width="3"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+
+                        </label>
+                    </div>
+
+                    {{-- <input type="checkbox" name="no_bank_details" id="no_bank_details" value="1" class="mr-2" /> --}}
+                    <label for="no_bank_details" class="ml-2 text-[#111518]">I don't want to add bank details</label>
                 </div>
 
                 <!-- Cryptocurrency Details -->
@@ -67,7 +86,7 @@
                         <label class="flex flex-col">
                             <span class="font-medium text-[#111518]">Cryptocurrency Option</span>
                             <select name="crypto_option" id="crypto_option"
-                                class="bg-[#f0f3f4] p-4 border rounded-lg focus:outline-none focus:ring-[#146d23] focus:ring-2 w-full h-12">
+                            class="flex flex-1 bg-[#f0f3f4] p-4 border-none focus:border-none rounded-lg focus:outline-0 focus:ring-0 w-full min-w-0 h-14">
                                 <option value="bitcoin">Bitcoin</option>
                                 <option value="ethereum">Ethereum</option>
                                 <option value="litecoin">Litecoin</option>
@@ -88,7 +107,7 @@
         <!-- Main Content -->
         <div class="mt-8">
             @if (!$accounts->isEmpty())
-                <button  @click="modal = true"
+                <button @click="modal = true"
                     class="flex justify-end bg-[#146d23] hover:bg-[#0f5e1e] px-4 py-2 rounded-lg text-white transition duration-200">
                     Add Account
                 </button>
@@ -120,7 +139,7 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4">{{ ucfirst($account->account_type ) }}</td>
+                                <td class="px-6 py-4">{{ ucfirst($account->account_type) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <a class="text-[#bb6a0a] hover:underline"
                                         href="{{ route('withdrawal.accounts.edit', ['id' => $account->id]) }}"
@@ -153,6 +172,13 @@
     </div>
 
     <script>
+        document.getElementById('modal').style.opacity = '0';
+
+        window.onload = function() {
+            document.getElementById('modal').style.opacity = '1';
+
+        };
+
         document.getElementById('no_bank_details').addEventListener('change', function() {
             var bankDetails = document.getElementById('bank-details');
             var cryptoDetails = document.getElementById('crypto-details');

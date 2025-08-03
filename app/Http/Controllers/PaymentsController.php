@@ -247,7 +247,7 @@ class PaymentsController extends Controller
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
                 $fileName = 'sub' . '_' . $package->tier . Str::random(3) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('payments/registration', $fileName, 'public');
+                $imagePath = $image->storeAs('payments', $fileName, 'public');
             } else {
                 return redirect()->back()->with('error', 'Error uploading payment proof please try again.');
             }
@@ -357,7 +357,7 @@ class PaymentsController extends Controller
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
                 $fileName = 'reg' . '_' . Str::random(4) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('payments/registration', $fileName, 'public');
+                $imagePath = $image->storeAs('payments', $fileName, 'public');
             }
 
             DB::transaction(function () use ($user, $paymentData, $fileName) {
@@ -428,7 +428,7 @@ class PaymentsController extends Controller
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
                 $fileName = 'wklysub' . '_' . Str::random(4) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('payments/registration', $fileName, 'public');
+                $imagePath = $image->storeAs('payments', $fileName, 'public');
             }
 
             DB::transaction(function () use ($user, $paymentData, $fileName) {
@@ -514,7 +514,7 @@ class PaymentsController extends Controller
             return redirect()->back()->with('success', 'Contribution claimed successfully!');
 
         } else {
-            return redirect()->back()->with('error', 'You have pending payments default to clear.');
+            return redirect()->back()->with('error', 'We are sorry you can\'t claim your contribution at this time because you have pending payments that needs to be cleared.');
         }
 
 
@@ -550,7 +550,7 @@ class PaymentsController extends Controller
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
                 $fileName = 'debtpyt' . '_' . Str::random(4) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('payments/subscription', $fileName, 'public');
+                $imagePath = $image->storeAs('payments', $fileName, 'public');
             }
 
             DB::transaction(function () use ($user, $paymentData, $fileName) {
@@ -723,6 +723,113 @@ class PaymentsController extends Controller
 
         return redirect()->route('dashboard.withdrawal')->with('success', 'Withdrawal account deleted successfully.');
     }
+
+    public function processWithdrawal(Request $request)
+{
+    // Validate the request data
+    $data = $request->validate([
+
+        'amount' => 'required|numeric|min:0.01',
+        'withdrawal_type' => 'required|in:bank,crypto', // Specify the withdrawal type
+        'withdrawal_id' => 'required',
+        // 'account_name' => 'nullable|string',
+        // 'account_number' => 'nullable|string',
+        // 'bank_name' => 'nullable|string',
+        // 'wallet_address' => 'nullable|string',
+        // 'network' => 'nullable|string',
+
+    ]);
+    $user = Auth::user();
+    $trxType = 'withdrawal';
+    $appSettings = null;
+    $dollarRate = 1560.00;
+
+    // dd($data['amount']);
+
+    $trxRef = $this->userService->generateTrxRef($trxType);
+
+    // dd($data['withdrawal_id']);
+
+
+
+    // Check withdrawal type and store accordingly
+    if ($request->withdrawal_type === 'bank') {
+        $account = $user->withdrawalAccounts()->find($data['withdrawal_id']);
+
+        if($account == null) {
+            return redirect()->back()->with('error', 'We couldn\'t find the associated account information, please try again later.');
+        }
+            // dd($account);
+
+
+            $activeDashboard = $user->activeDashboard()->first();
+
+            if ($activeDashboard->wallet_balance < $request->amount) {
+                return redirect()->back()->with('error', 'Insufficient Balance.');
+            }
+
+            $activeDashboard->decrement('wallet_balance',$request->amount);
+
+
+            // For bank withdrawal
+        $withdrawal =$user->withdrawals()->create([
+            'user_id' => $user->id,
+            'amount' => $request->amount,
+            'account_name' => $account->account_name,
+            'account_number' => $account->account_number,
+            'bank_name' => $account->bank_name,
+            'withdrawal_status' => 'pending',
+            'transaction_reference' => $trxRef,
+        ]);
+    }
+    elseif ($request->withdrawal_type === 'crypto') {
+        $account = $user->withdrawalAccounts()->find($data['withdrawal_id']);
+
+
+
+
+        if ($account == null) {
+            return redirect()->back()->with('error', 'We couldn\'t find the associated account information, please try again later.');
+        }
+
+        // dd($account);
+
+            $activeDashboard = $user->activeDashboard()->first();
+
+            $convertedRate = $data['amount'] * $dollarRate;
+
+
+
+
+            if ($activeDashboard->wallet_balance < $convertedRate) {
+                return redirect()->back()->with('error', 'Insufficient Balance.');
+            }
+
+            // dd(number_format($convertedRate, 2));
+
+
+
+            $activeDashboard->decrement('wallet_balance', $convertedRate);
+
+            // For crypto withdrawal
+        $withdrawal = $user->withdrawals()->create([
+            'user_id' => $user->id,
+            'amount' => $request->amount,
+            'crypto_option' => $account->crypto_option,
+            'wallet_address' => $account->wallet_address,
+            'network' => $account->network,
+            'withdrawal_status' => 'pending',
+            'transaction_reference' => $trxRef,
+        ]);
+    }
+
+    // return response()->json([
+    //     'message' => 'Withdrawal request submitted successfully.',
+    //     'withdrawal' => $withdrawal,
+    // ], 201);
+
+    return redirect()->route('dashboard.withdrawal.history')->with('info', 'Your withdrawal is pending confirmation');
+}
 
 
 

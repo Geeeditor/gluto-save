@@ -106,12 +106,39 @@
                     <a href="{{ route('dashboard.kyc.status') }}" class="text-white sidebar-navigation-list">&raquo;
                         KYC Status</a>
 
-                    <a href="{{ route('dashboard.withdrawal') }}" class="text-white sidebar-navigation-list">&raquo; Manage Withdrawal
-                        Accounts</a>
+
 
 
                 </div>
             </div>
+
+            <a href="{{ route('dashboard.subscriptions') }}" class="d-flex sidebar-navigation-list align-center">
+                <img src="{{ asset('/images/icons/plan.svg') }}">
+                <!--<i style="font-size:15px;" class="text-white ri-file-lock-line"></i>-->
+                <span class="text-white">My Plan</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
+
+
+            <a  href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ? route('dashboard.contribution') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex  sidebar-navigation-list align-center">
+                <img class="" src="{{ asset('/images/icons/contribute.svg') }}">
+                <span class="text-white">Make Contribution</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
+
+            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.claim.status') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
+                <img src="{{ asset('/images/icons/claim.svg') }}">
+                <span class="text-white">Claim Contribution</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
+
+            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.defaulted-payment') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
+                <img class="" src="{{ asset('/images/icons/default.svg') }}">
+                <span class="text-white">Clear Defaulted Payment</span>
+                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+            </a>
+
+
 
 
             <!--	<a href="javascript:void();" class="d-flex sidebar-navigation-list align-center" onclick="alert('Coming soon on your dashboard.');">
@@ -123,29 +150,23 @@
             <!--this end log complaints-->
             <!--this end log complaints-->
             <!--this end log complaints-->
-            <div class="sidebar-dropdown" style="display: none;">
+            <div class="sidebar-dropdown" >
                 <a href="javascript:void();" class="d-flex sidebar-navigation-list sidebar-menu-link align-center">
-                    <img src="{{ asset('assets/images/calender.png') }}">
-                    <span class="text-white">Log Complain(s)</span>
+                    <img src="{{ asset('/images/icons/withdrawal-alt.svg') }}">
+                    <span class="text-white">Withdrawal</span>
                     <i class="ri-arrow-right-s-line text-white nav-icon"></i>
                 </a>
 
                 <div class="d-flex flex-col dropdown-menus">
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list"
-                        onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; Log A New
-                        Complain</a>
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list"
-                        onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; View Pending
-                        Complaints</a>
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list"
-                        onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; View Ongoing
-                        Complaints</a>
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list"
-                        onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; View
-                        Completed Complaints</a>
-                    <a href="javascript:void();" class="text-white sidebar-navigation-list"
-                        onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; Manage All
-                        Complaints</a>
+                    {{-- <a href="javascript:void();" class="text-white sidebar-navigation-list"
+                        onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; View/Delete Cashout Accounts</a> --}}
+                    <a href="{{ route('dashboard.withdrawal') }}" class="text-white sidebar-navigation-list"
+                       >&raquo; View/Delete Payout Accounts</a>
+                    <a href="{{ route('dashboard.make-withdrawal') }}" class="text-white sidebar-navigation-list"
+                        >&raquo; Make Withdrawal </a>
+                    <a href="{{route('dashboard.withdrawal.history')}}" class="text-white sidebar-navigation-list"
+                        >&raquo; Withdrawal History</a>
+
                 </div>
             </div>
             <!--this end log complaints-->
@@ -171,12 +192,7 @@
                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
             </a>
 
-            <a href="{{ route('dashboard.make-withdrawal') }}" class="d-flex sidebar-navigation-list align-center">
-                <img src="{{ asset('/images/icons/topup.svg') }}">
-                <!--<i style="font-size:15px;" class="text-white ri-file-lock-line"></i>-->
-                <span class="text-white">Make Withdrawal</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
+
 
             <a href="{{ route('dashboard.payments') }}" class="d-flex sidebar-navigation-list align-center">
                 <img src="{{ asset('/images/icons/serialized.svg') }}">
@@ -209,31 +225,9 @@
             <!-- settlement accounts ends here -->
 
 
-            <a href="{{ route('dashboard.subscriptions') }}" class="d-flex sidebar-navigation-list align-center">
-                <img src="{{ asset('/images/icons/plan.svg') }}">
-                <!--<i style="font-size:15px;" class="text-white ri-file-lock-line"></i>-->
-                <span class="text-white">My Plan</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
 
 
-            <a  href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ? route('dashboard.contribution') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex  sidebar-navigation-list align-center">
-                <img class="" src="{{ asset('/images/icons/contribute.svg') }}">
-                <span class="text-white">Make Contribution</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
 
-            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.defaulted-payment') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
-                <img class="" src="{{ asset('/images/icons/default.svg') }}">
-                <span class="text-white">Clear Defaulted Payment</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
-
-            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.subscriptions') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
-                <img src="{{ asset('/images/icons/claim.svg') }}">
-                <span class="text-white">Claim Contribution</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
 
 
             <!--		<a href="wallet-transfer" class="d-flex sidebar-navigation-list align-center">

@@ -68,7 +68,7 @@ class DashboardController extends Controller
 
 
                 $fileName = 'reg' . '_' . Str::random(4) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                Storage::disk('public')->put('/payments/registration/' . $fileName, file_get_contents($image));
+                Storage::disk('public')->put('payments' . $fileName, file_get_contents($image));
 
             }
 
@@ -148,7 +148,7 @@ class DashboardController extends Controller
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
                 $fileName = 'reg' . '_' . Str::random(4) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('payments/registration', $fileName, 'public');
+                $imagePath = $image->storeAs('payments', $fileName, 'public');
             }
 
             // $payment->delete();
@@ -530,7 +530,7 @@ class DashboardController extends Controller
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
                 $fileName = 'sub' . '_' . $subscription['plan'] . Str::random(3) . '_' . time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('payments/registration', $fileName, 'public');
+                $imagePath = $image->storeAs('payments', $fileName, 'public');
             } else {
                 return redirect()->back()->with('error', 'Error uploading payment proof please try again.');
             }
@@ -622,6 +622,33 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function claimStatus(){
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+        $userKYC = null;
+
+        // Fetch all subscriptions for the user
+        $currentSubscription = $user->subscriptions()->where('is_primary', true)->first();
+        $subscriptions = $user->subscriptions()->get();
+
+        if ($currentSubscription == null) {
+            return redirect()->route('dashboard.subscriptions')->with('error', 'You don\'t have a subscription package.');
+        }
+
+        if ($currentSubscription->package_status !== 'matured') {
+            return redirect()->route('dashboard.subscriptions')->with('error', 'Your package is yet to mature');
+        }
+
+        // dd($currentSubscription);
+
+        return view('dashboard.subscriptions', [
+            'user' => $user,
+            'profilePic' => $profilePic,
+            'currentSubscription' => $currentSubscription,
+            'subscriptions' => $subscriptions
+        ]);
+    }
+
 
     public function defaultedPayment() {
         $user = Auth::user();
@@ -663,9 +690,23 @@ class DashboardController extends Controller
         // $currentSubscription = $user->subscriptions()->where('is_primary', true)->first();
         $withdrawalAccount = $user->withdrawalAccounts()->get();
 
+
+
         if ($withdrawalAccount == null ) {
-            return redirect()->route('dashboard.withdrawal')->with('info', 'You don\'t have a subscription package');
+            return redirect()->route('dashboard.withdrawal')->with('info', 'Please add a withdrawal account');
         }
+
+        $bankAccounts = $withdrawalAccount->filter(function ($account) {
+            return $account->no_bank_details == 0; // Accounts with no bank details
+        });
+
+
+        $cryptoWallet = $withdrawalAccount->filter(function ($account) {
+            return $account->no_bank_details == 1; // Accounts with bank details
+        });
+
+        // dd($bankAccounts, $cryptoWallet);
+
 
         if ($userKYC == null ) {
             return redirect()->route('dashboard.kyc')->with('info', 'Please submit your KYC documents');
@@ -674,10 +715,36 @@ class DashboardController extends Controller
         return view('dashboard.make-withdrawal', [
             'user' => $user,
             'profilePic' => $profilePic,
-            'withdrawalAccount' => $withdrawalAccount,
+            'bankAccounts' => $bankAccounts,
+            'cryptoWallet' => $cryptoWallet,
             'dashboard' => $dashboard
         ]);
-        
+
+    }
+
+    public function withdrawalHistory(){
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+        $withdrawals = $user->withdrawals()->get();
+
+        $bankAccounts = $withdrawals->filter(function ($account) {
+            return $account->account_number !== null; // Accounts with no bank details
+        });
+
+
+        $cryptoWallet = $withdrawals->filter(function ($account) {
+            return $account->crypto_option !== null; // Accounts with bank details
+        });
+
+        // dd($bankAccounts, $cryptoWallet);
+
+        return view('dashboard.withdrawal-history', [
+            'user' => $user,
+            'profilePic' => $profilePic,
+            'withdrawals' => $withdrawals,
+            'cryptoWallet' => $cryptoWallet,
+            'bankAccounts' => $bankAccounts
+        ]);
     }
 
 }

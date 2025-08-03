@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('account_name')->nullable(); // Account name for the withdrawal (nullable for wallet withdrawals)
             $table->string('account_number')->nullable(); // Account number for the withdrawal (nullable for wallet withdrawals)
             $table->string('bank_name')->nullable(); // Bank name for the withdrawal (nullable for wallet withdrawals)
+            $table->string('crypto_option')->nullable(); // Bank name for the withdrawal (nullable for wallet withdrawals)
 
             // Fields for wallet withdrawal
             $table->string('wallet_address')->nullable(); // Wallet address for cryptocurrency withdrawal (nullable for account withdrawals)

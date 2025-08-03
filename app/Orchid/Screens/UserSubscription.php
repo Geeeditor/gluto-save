@@ -69,15 +69,13 @@ class UserSubscription extends Screen
 
             Layout::table('subscriptions', [
                 TD::make('id', 'ID'),
-                TD::make('user_id', 'User ID'),
+                TD::make('user.name', 'User ID'),
                 TD::make('tier', 'Tier'),
-                TD::make('withdrawal', 'Withdrawal'),
                 TD::make('total_contribution', 'Total Contribution'),
                 TD::make('defaulted_weeks', 'Defaulted Weeks'),
                 TD::make('package_status', 'Package Status'),
-                TD::make('is_primary', 'Is Primary'),
-                TD::make('sub_id', 'Subscription ID'),
-                TD::make('sub_fee', 'Subscription Fee'),
+                TD::make('sub_id', 'Sub ID'),
+                TD::make('sub_fee', 'Sub Fee'),
 
                 TD::make('actions', 'Update Status')->render(function (Repository $subscription) {
                     return Select::make('status_' . $subscription->get('id'))

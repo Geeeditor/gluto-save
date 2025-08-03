@@ -24,9 +24,9 @@
                     <th class="px-6 py-3 border-[#9a4f00] border-r whitespace-nowrap">
                         Date
                     </th>
-                    <th class="px-6 py-3 border-[#9a4f00] border-r whitespace-nowrap">
+                    {{-- <th class="px-6 py-3 border-[#9a4f00] border-r whitespace-nowrap">
                         Receipt
-                    </th>
+                    </th> --}}
                     <th class="px-6 py-3 whitespace-nowrap">
                         Status
                     </th>
@@ -48,11 +48,11 @@
                         {{-- {{ $payment->created_at->diffForHumans() }} --}}
                         {{ $payment->created_at->format('F j, Y') }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    {{-- <td class="px-6 py-4 whitespace-nowrap">
                         <a class="text-[#bb6a0a] hover:underline" href="{{ asset('receipts/' . $payment->receipt) }}" target="_blank" rel="noopener noreferrer">
                             View Receipt
                         </a>
-                    </td>
+                    </td> --}}
                     <td class="px-6 py-4 whitespace-nowrap">
 
                         {{-- s --}}

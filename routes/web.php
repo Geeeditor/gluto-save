@@ -112,10 +112,17 @@ Route::middleware('user')->group(function () {
 
    Route::get('/dashboard/withdrawal', [DashboardController::class, 'withdrawal'])->name('dashboard.make-withdrawal');
 
+   Route::get('/dashboard/withdrawal/history', [DashboardController::class, 'withdrawalHistory'])->name('dashboard.withdrawal.history');
+
    Route::post('/dashboard/plan/debt/store', [PaymentsController::class, 'clearDefaultStore'])->name('dashboard.defaulted-payment.store');
 
+   Route::post('/dashboard/withdrawal/process', [PaymentsController::class, 'processWithdrawal'])->name('dashboard.process-withdrawal');
 
-    Route::put('/dashboard/contribtion/claim/{sub_id}', [PaymentsController::class, 'claimContribution'])->name('dashboard.contribution.claim');
+    Route::get('/dashboard/contribution/claim', [DashboardController::class, 'claimStatus'])->name('dashboard.claim.status');
+
+
+
+    Route::put('/dashboard/contribution/claim/{sub_id}', [PaymentsController::class, 'claimContribution'])->name('dashboard.contribution.claim');
 
 });
 
