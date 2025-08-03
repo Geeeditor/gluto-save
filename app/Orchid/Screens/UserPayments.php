@@ -33,63 +33,65 @@ class UserPayments extends Screen
      */
     public function query(): iterable
     {
-        $userPayments = Payments::with('user')->get();
+        // $userPayments = Payments::with('user')->get();
 
 
-        $payments = $userPayments->map(function($payment)
-        {
+        // $payments = $userPayments->map(function ($payment) {
 
 
 
-            return new Repository(($payment->toArray()));
-        });
+        //     return new Repository(($payment->toArray()));
+        // });
 
 
-        $paymentData = [];
+        // $paymentData = [];
 
-        foreach ($userPayments as $payment) {
-            $paymentType = ''; // Default value
+        // foreach ($userPayments as $payment) {
+        //     $paymentType = ''; // Default value
 
-            // Determine the payment type using switch
-            switch ($payment->payment_type) {
-                case 'registration':
-                    $paymentType = 'Registration';
-                    break;
-                case 'subscription':
-                    $paymentType = 'Subscription';
-                    break;
-                case 'contribution':
-                    $paymentType = 'Contribution';
-                    break;
-                case 'wallet_fund':
-                    $paymentType = 'Wallet Funding';
-                    break;
-                default:
-                    $paymentType = 'Unknown';
-                    break;
-            }
+        //     // Determine the payment type using switch
+        //     switch ($payment->payment_type) {
+        //         case 'registration':
+        //             $paymentType = 'Registration';
+        //             break;
+        //         case 'subscription':
+        //             $paymentType = 'Subscription';
+        //             break;
+        //         case 'contribution':
+        //             $paymentType = 'Contribution';
+        //             break;
+        //         case 'wallet_fund':
+        //             $paymentType = 'Wallet Funding';
+        //             break;
+        //         default:
+        //             $paymentType = 'Unknown';
+        //             break;
+        //     }
 
-            $paymentData[] = [
-                'id' => $payment->id,
-                'payment_type' => $paymentType,
-                'amount' => $payment->amount,
-                'payment_method' => $payment->payment_method,
-                'payment_status' => $payment->payment_status,
-                'transaction_reference' => $payment->transaction_reference,
-                'payment_id' => $payment->payment_id,
-                'payment_proof' => $payment->payment_proof
-            ];
-        }
+        //     $paymentData[] = [
+        //         'id' => $payment->id,
+        //         'name' => $payment->user->name,
+        //         'payment_type' => $paymentType,
+        //         'amount' => $payment->amount,
+        //         'payment_method' => $payment->payment_method,
+        //         'payment_status' => $payment->payment_status,
+        //         'transaction_reference' => $payment->transaction_reference,
+        //         'payment_id' => $payment->payment_id,
+        //         'payment_proof' => $payment->payment_proof,
+        //         'created_at' => $payment->created_at,
+        //         'updated_at' => $payment->updated_at,
+        //     ];
+        // }
 
-        // dd($paymentData);
+        // // dd($paymentData);
 
 
         return [
-            'payments' => $payments,
-            'paymentData' => $paymentData,
-            'metric' => [
-                'total_payments' => Payments::count(),
-            ]
+            // 'payments' => $payments,
+            // 'paymentData' => $paymentData,
+            // 'metric' => [
+            //     'total_payments' => Payments::count(),
+            // ]
         ];
     }
 
@@ -121,11 +123,13 @@ class UserPayments extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::metrics(
-                ['Total Submitted Payments' => 'metric.total_payments']
-            ),
+            // Layout::metrics(
+            //     ['Total Submitted Payments' => 'metric.total_payments']
+            // ),
 
-            Layout::table(
+            Layout::view('platform::components.payments')
+
+            /* Layout::table(
                 'payments', [
                     TD::make('id', 'ID'),
                     TD::make('user.name', 'User ID')->width('100px')->cantHide(),
@@ -141,14 +145,16 @@ class UserPayments extends Screen
                             ;
                     }),
                 ]
-            )
+            ) */
         ];
     }
 
-    public function getPayment(Request $request)
-    {
-        $paymentId = $request->get('id');
+    // public function getPayment(Request $request)
+    // {
+    //     $paymentId = $request->get('id');
 
-        return redirect()->route('platform.payments.update', ['id' => $paymentId]);
-    }
+    //     dd($paymentId);
+
+    //     return redirect()->route('platform.payments.update', ['id' => $paymentId]);
+    // }
 }

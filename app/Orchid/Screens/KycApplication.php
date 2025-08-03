@@ -113,6 +113,8 @@ class KycApplication extends Screen
                 TD::make('document_id', 'Doc ID')->width('100px'),
                 TD::make('application_status', 'Application Status')->width('150px'),
 
+
+
                 TD::make('actions', 'Update Status')->render(
                     function (Repository $kyc) {
                         return Select::make('status_' . $kyc->get('id'))
@@ -121,7 +123,7 @@ class KycApplication extends Screen
                                 'pending_approval' => 'Pending Approval',
                                 'rejected' => 'Rejected'
                             ])->width('120px')
-                            ->default($kyc->get('application_status')) // Set default value
+                            // ->default($kyc->get('application_status')) // Set default value
 
                             . Button::make('Update')
                                 ->method('updateKyc')

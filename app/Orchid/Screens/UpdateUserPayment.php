@@ -33,6 +33,8 @@ class UpdateUserPayment extends Screen
     {
         $this->payment = Payments::find($id);
 
+        // dd(vars: 'y');
+
         if (!$this->payment) {
             Alert::warning("Payment not found.");
             return [];
@@ -108,10 +110,10 @@ class UpdateUserPayment extends Screen
                     'approved' => 'Approved',
                     'failed' => 'Failed',
                 ])
-                ->required()
-                ->disabled($this->payment->payment_status == 'approved'),
+                ->required(),
+                // ->disabled($this->payment->payment_status == 'approved'),
 
-            Button::make('Update Payment')
+            Button::make('Update Transaction')
                 ->method('updatePayment')
                 ->icon('check'),
         ])
@@ -131,10 +133,20 @@ class UpdateUserPayment extends Screen
             'payment.transaction_reference' => 'required'
         ]);
 
+
         $paymentStatus = $data['payment']['payment_status'];
         $transactionReference = $data['payment']['transaction_reference'];
 
-        $payment = Payments::with('user')->where('transaction_reference', $transactionReference)->first();
+        // dd($transactionReference);
+
+
+
+
+            $payment = Payments::with('user')->where('transaction_reference', $transactionReference)->first();
+
+        if ($paymentStatus == 'approved' && $payment->payment_status == 'approved') {
+            return redirect()->route('platform.payments')->with('message', 'Transaction already has an existing payment status of approved therefore payment status is left unchanged.');
+        }
 
         // Start a database transaction
         DB::transaction(function () use ($payment, $paymentStatus, $transactionReference) {

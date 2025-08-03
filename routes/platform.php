@@ -10,12 +10,14 @@ use App\Orchid\Screens\UserDashboard;
 use Illuminate\Support\Facades\Route;
 use App\Orchid\Screens\KycApplication;
 use App\Orchid\Screens\PlatformScreen;
+use App\Orchid\Screens\UserWithdrawal;
 use App\Orchid\Screens\UserSubscription;
 use App\Orchid\Screens\UpdateUserPayment;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
 use App\Orchid\Screens\User\UserListScreen;
+use App\Orchid\Screens\UpdateUserWithdrawal;
 use App\Orchid\Screens\Examples\ExampleScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
 use App\Orchid\Screens\Examples\ExampleGridScreen;
@@ -109,6 +111,10 @@ Route::screen('/users-subscriptions', UserSubscription::class)->name('platform.u
 Route::screen('/payments', UserPayments::class)->name('platform.payments');
 
 Route::screen('/payments/update/{id}', UpdateUserPayment::class)->name('platform.payments.update');
+
+Route::screen('/withdrawals', UserWithdrawal::class)->name('platform.withdrawal');
+
+Route::screen('/withdrawal/update/{id}', UpdateUserWithdrawal::class)->name('platform.withdrawal.update');
 
 
 Route::screen('/examples/form/fields', ExampleFieldsScreen::class)->name('platform.example.fields');

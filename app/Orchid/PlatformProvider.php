@@ -82,8 +82,8 @@ class PlatformProvider extends OrchidServiceProvider
             //     ->divider(),
 
             Menu::make('Manage Withdrawal ')
-                ->icon('bs.arrow-left-right'),
-            // ->route('platform.withdrawals.view')
+                ->icon('bs.arrow-left-right')
+            ->route('platform.withdrawal'),
 
             Menu::make('App Settings')
                 ->icon('bs.gear')

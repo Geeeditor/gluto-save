@@ -246,7 +246,7 @@ class PaymentsController extends Controller
         } elseif ($data['payment_method'] == 'gluto_transfer') {
             if ($request->hasFile('payment_proof')) {
                 $image = $request->file('payment_proof');
-                $fileName = 'sub' . '_' . $package->tier . Str::random(3) . '_' . time() . '.' . $image->getClientOriginalExtension();
+                $fileName = 'doc' . '_' . Str::random(3) . Str::random(3) . '_' . time() . '.' . $image->getClientOriginalExtension();
                 $imagePath = $image->storeAs('payments', $fileName, 'public');
             } else {
                 return redirect()->back()->with('error', 'Error uploading payment proof please try again.');
@@ -254,10 +254,11 @@ class PaymentsController extends Controller
 
             DB::transaction(function()  use ( $fileName, $transactionData, $transaction, $package){
 
-
+                if($transactionData['payment_type'] == 'subscription'){
                 $package->update([
                    'package_status' => 'pending_activation'
                    ]);
+                }
 
                 $transaction->update([
                     'payment_proof' => $fileName,
