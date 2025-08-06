@@ -11,6 +11,7 @@ use App\Models\PackageSubscription;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Notification as Notification;
+use Unicodeveloper\Paystack\Paystack as Paystack;
 
 class DashboardController extends Controller
 {
@@ -122,7 +123,37 @@ class DashboardController extends Controller
             }
 
         } elseif($data['payment_method'] == 'paystack'){
-            return redirect()->back()->with('info', 'Paystack payment option unavailable');
+            $user->activeDashboard()->create();
+
+
+            $paymentData = [
+                'amount' => (int) round($data['amount'] * 100),
+                'email' => $user->email,
+                'callback_url' => route('dashboard.account.store.callback'),
+                'metadata' => [
+                    'name' => $user->name,
+                    'payment_method' => $data['payment_method'],
+                    'payment_type' => $trxType,
+                    'transaction_reference' => $trxRef,
+                    'payment_id' => $user->activeDashboard()->first()->id,
+                    'amount' => $data['amount']
+                ]
+            ];
+
+            try {
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($paymentData)->redirectNow();
+
+
+
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
         }
 
         return redirect()->back()->with('error', 'Our system is could not determine your prefered payment method.');
@@ -166,7 +197,7 @@ class DashboardController extends Controller
                     'payment_proof' => $fileName,
                     'payment_status' => 'pending',
                     'payment_type' => $trxType,
-                    'transaction_reference' => $trxRef
+                    // 'transaction_reference' => $trxRef
                 ]);
 
             });
@@ -174,7 +205,36 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('info', 'Your payment  has been resubmitted successfully. Please wait for confirmation.');
 
         } elseif ($data['payment_method'] == 'paystack') {
-            //Paystack Payment
+
+            $paymentData = [
+                'amount' => (int) round($data['amount'] * 100),
+                'email' => $user->email,
+                'callback_url' => route('dashboard.account.retry.callback'),
+                'metadata' => [
+                    'name' => $user->name,
+                    'payment_method' => $data['payment_method'],
+                    'payment_type' => $trxType,
+                    'transaction_reference' => $payment->transaction_reference,
+                    'payment_id' => $payment->id,
+                    'amount' => $data['amount']
+                ]
+            ];
+
+            try {
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($paymentData)->redirectNow();
+
+
+
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
+
 
             return redirect()->back()->with('info', 'Paystack payment option unavailable');
 
@@ -473,7 +533,7 @@ class DashboardController extends Controller
         $subscription = [
             'sub_id' => $subID,
             'plan' => $plan,
-            'amount' => $amount,
+            'amount' =>  $amount,
             'payment_type' => $trxType,
             'trxRef' => $trxRef,
             'payment_method' => $data['payment_method'],
@@ -560,7 +620,57 @@ class DashboardController extends Controller
 
             return redirect()->route('dashboard.subscriptions')->with('info', 'Your order is been processed');
         } elseif ($data['payment_method'] == 'paystack') {
-            return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
+
+            //Paystack Payment
+
+
+
+            $paymentData = [
+                'email' => $user->email,
+                'amount' => (int) round($subscription['amount'] * 100), // Send as integer (4000)
+                'callback_url' => route('plan.checkout.store.callback'),
+                'metadata' => [
+                    'name' => $user->name,
+                    'payment_method' => $subscription['payment_method'],
+                    'generated_sub_id' => $subscription['sub_id'],
+                    'payment_type' => $subscription['payment_type'],
+                    'plan' => $subscription['plan'],
+                    'orderID' => $trxRef,
+                    'sub_fee' => $subscription['sub_fee'],
+                    'amount_paid' => $subscription['amount'],
+                ]
+            ];
+
+
+            \Log::info('Payment Data: ', $paymentData);
+
+            // \Log::info('Payment Data: ', [
+            //     'email' => $user->email,
+            //     'amount' => number_format($amountInKobo / 100, 2), // Format to 2 decimal places
+            //     'payment_type' => $trxType,
+            //     'sub_fee' => $subscription['sub_fee'],
+            //     'orderID' => $trxRef,
+            //     'callback_url' => route('plan.checkout.store.callback'),
+            // ]);
+
+            try {
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($paymentData)->redirectNow();
+
+
+                $request->session()->forget(['subscription_plan', 'subscription_amount']);
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
+
+            // return redirect()->back()->with('error', 'Something went wrong, please try again.');
+
+
         }
 
 
@@ -573,8 +683,6 @@ class DashboardController extends Controller
             'sub_id' => 'required'
         ]);
 
-        // dd($data['sub_id']);
-
         $user = Auth::user();
 
         // Retrieve the current primary subscription
@@ -583,14 +691,16 @@ class DashboardController extends Controller
         // Retrieve the subscription to switch to
         $switchPackage = $user->subscriptions()->where('sub_id', $data['sub_id'])->first();
 
-        // Check if both subscriptions exist
-        if (!$currentPackage || !$switchPackage) {
-            return redirect()->back()->with('error', 'Invalid subscriptions provided.');
+        // Check if the switch package exists
+        if (!$switchPackage) {
+            return redirect()->back()->with('error', 'Invalid subscription to switch to.');
         }
 
         DB::transaction(function () use ($currentPackage, $switchPackage) {
-            // Update the current primary to false
-            $currentPackage->update(['is_primary' => false]);
+            // If a current package exists, update it to false
+            if ($currentPackage) {
+                $currentPackage->update(['is_primary' => false]);
+            }
 
             // Set the new primary subscription
             $switchPackage->update(['is_primary' => true]);

@@ -41,8 +41,8 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{ $payment->transaction_reference }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {{ $payment->payment_method == 'gluto_transfer' ? 'Bank Transfer' : ($payment->payment_method == 'wallet_balance' ? 'Wallet Balance' : 'Paystack' )  }}
+                    <td class="px-6 py-4 capitalize whitespace-nowrap">
+                        {{ $payment->payment_method == 'gluto_transfer' ? 'Bank Transfer' : ($payment->payment_method == 'wallet_balance' ? 'Wallet Balance' : $payment->payment_method )  }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{-- {{ $payment->created_at->diffForHumans() }} --}}

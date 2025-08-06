@@ -8,6 +8,7 @@ use App\Services\UserService;
 use App\Models\WithdrawalAccount;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Unicodeveloper\Paystack\Paystack;
 use App\Http\Controllers\DashboardController;
 
 class PaymentsController extends Controller
@@ -304,7 +305,47 @@ class PaymentsController extends Controller
 
             // return redirect()->route('dashboard.subscriptions')->with('info', 'Your order is been processed');
         } elseif ($data['payment_method'] == 'paystack') {
-            return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
+            // Subscription
+            // if($transactionData['payment_type'] == 'subscription') {
+                $paymentData = [
+                    'email' => $user->email,
+                    'amount' => (int) round($transactionData['amount'] * 100), // Send as integer (4000)
+                    'callback_url' => route('dashboard.payments.update.callback'),
+                    'metadata' => [
+                        'name' => $user->name,
+                        'payment_method' => $transactionData['payment_method'],
+                        'payment_type' => $transactionData['payment_type'],
+                        'payment_id' => $transactionData['payment_id'],
+                        'orderID' => $transactionData['transaction_reference'],
+                        'amount_paid' => $transactionData['amount'],
+                    ]
+                ];
+            // }
+
+            //Registration
+            // elseif($transactionData['payment_type'] == 'wallet_fund'){
+
+            // }
+
+
+
+            try {
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($paymentData)->redirectNow();
+
+
+                // $request->session()->forget(['subscription_plan', 'subscription_amount']);
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
+
+            // return redirect()->back()->with('error', 'Something went wrong, please try again.');
+            // return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
         }
 
 
@@ -349,7 +390,8 @@ class PaymentsController extends Controller
             'payment_method' => $data['payment_method'],
             'payment_id' => $user->activeDashboard()->first()->id,
             'payment_type' => $trxType,
-            'trxRef' => $trxRef
+            'trxRef' => $trxRef,
+
         ];
 
         // dd($paymentData['payment_id']);
@@ -379,7 +421,36 @@ class PaymentsController extends Controller
         } elseif ($data['payment_method'] == 'wallet_balance') {
             return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
         } elseif ($data['payment_method'] == 'paystack') {
-            return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
+            $transactionData = [
+                'email' => $user->email,
+                'amount' => (int) round($paymentData['amount'] * 100), // Send as integer (4000)
+                'callback_url' => route('dashboard.fund.store.callback'),
+                'metadata' => [
+                    'name' => $user->name,
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_type' => $paymentData['payment_type'],
+                    'payment_id' => $paymentData['payment_id'],
+                    'orderID' => $paymentData['trxRef'],
+                    'amount_paid' => $paymentData['amount'],
+                ]
+            ];
+
+            try {
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($transactionData)->redirectNow();
+
+
+
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
+
+            // return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
         }
 
         return redirect()->back()->with('info', 'We could not determine your payment method');
@@ -466,6 +537,8 @@ class PaymentsController extends Controller
 
                 $subscription->increment('total_contribution', $paymentData['amount']);
 
+
+
                 $user->payments()->create([
                     // 'payment_proof' => $fileName,
                     'amount' => $paymentData['amount'],
@@ -477,6 +550,17 @@ class PaymentsController extends Controller
                     'receipt' => $receipt
                 ]);
 
+                // $expectedContribution = $subscription->sub_fee * 52;
+
+
+
+
+                $expectedContribution = $subscription->sub_fee * 52;
+
+                if ($subscription->total_contribution >= $expectedContribution) {
+                    $subscription->update(['package_status' => 'matured']);
+                }
+
 
 
             });
@@ -484,7 +568,49 @@ class PaymentsController extends Controller
             return redirect()->route('dashboard.subscriptions')->with('info', 'Your order has been processed');
 
         } elseif ($data['payment_method'] == 'paystack') {
-            return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
+            $paymentData = [
+                'email' => $user->email,
+                'amount' => (int) round($paymentData['amount'] * 100), // Send as integer (4000)
+                'callback_url' => route('dashboard.contribution.store.callback'),
+                'metadata' => [
+                    'name' => $user->name,
+                    'payment_method' => $paymentData['payment_method'],
+                    'subID' => $subscription->sub_id,
+                    'payment_type' => $paymentData['payment_type'],
+                    'plan' => $subscription->tier,
+                    'orderID' => $trxRef,
+                    'sub_fee' => $subscription->sub_fee,
+                    'amount_paid' => $paymentData['amount'],
+                ]
+            ];
+
+            \Log::info('Payment Data: ', $paymentData);
+
+            // \Log::info('Payment Data: ', [
+            //     'email' => $user->email,
+            //     'amount' => number_format($amountInKobo / 100, 2), // Format to 2 decimal places
+            //     'payment_type' => $trxType,
+            //     'sub_fee' => $subscription['sub_fee'],
+            //     'orderID' => $trxRef,
+            //     'callback_url' => route('plan.checkout.store.callback'),
+            // ]);
+
+            try {
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($paymentData)->redirectNow();
+
+
+
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
+
+            // return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
         }
 
         return redirect()->back()->with('info', 'We could not determine your payment method');
@@ -609,7 +735,51 @@ class PaymentsController extends Controller
 
             return redirect()->route('dashboard.subscriptions')->with('info', 'Your order has been processed');
         } elseif ($data['payment_method'] == 'paystack') {
-            return redirect()->back()->with('error', 'We are still working on this feature kindly use the gluto direct payment option.');
+            $paymentData = [
+                'email' => $user->email,
+                'amount' => (int) round($paymentData['amount'] * 100), // Send as integer (4000)
+                'callback_url' => route('dashboard.defaulted-payment.store.callback'),
+                'metadata' => [
+                    'name' => $user->name,
+                    'payment_method' => $paymentData['payment_method'],
+                    'subID' => $subscription->sub_id,
+                    'payment_type' => $paymentData['payment_type'],
+                    'plan' => $subscription->tier,
+                    'orderID' => $trxRef,
+                    'sub_fee' => $subscription->sub_fee,
+                    'amount_paid' => $paymentData['amount'],
+                ]
+            ];
+
+            \Log::info('Payment Data: ', $paymentData);
+
+            // \Log::info('Payment Data: ', [
+            //     'email' => $user->email,
+            //     'amount' => number_format($amountInKobo / 100, 2), // Format to 2 decimal places
+            //     'payment_type' => $trxType,
+            //     'sub_fee' => $subscription['sub_fee'],
+            //     'orderID' => $trxRef,
+            //     'callback_url' => route('plan.checkout.store.callback'),
+            // ]);
+
+            try {
+
+
+                // Initialize Paystack
+                $paystack = new Paystack();
+                $response = $paystack->getAuthorizationUrl($paymentData)->redirectNow();
+
+
+
+
+                return $response;
+            } catch (\Exception $e) {
+                // Handle the exception
+                return redirect()->back()->with('error', $e->getMessage());
+                // return redirect()->back()->with('error', 'An error occurred while processing your payment. Please try again later.');
+            }
+
+
         }
 
         return redirect()->back()->with('info', 'We could not determine your payment method');

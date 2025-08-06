@@ -4,6 +4,7 @@ use League\Config\Configuration;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\PaystackController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConfigurationController;
 
@@ -65,6 +66,11 @@ Route::middleware('user')->group(function () {
 
     Route::post('/dashboard/account/store', [DashboardController::class, 'accountStore'])->name('dashboard.account.store');
 
+    Route::get('/dashboard/account/store/callback', [PaystackController::class, 'accountStoreCallback'])->name('dashboard.account.store.callback');
+
+    Route::get('/dashboard/account/retry/callback', [PaystackController::class, 'retryAccountStoreCallback'])->name('dashboard.account.retry.callback');
+
+
     Route::put('/dashboard/account/update/{id}', [DashboardController::class, 'retryAccountStore'])->name('dashboard.account.update');
 
     Route::get('/dashboard/account/retry', [DashboardController::class, 'account'])->name('dashboard.account.retry');
@@ -87,6 +93,10 @@ Route::middleware('user')->group(function () {
 
     Route::put('/dashboard/payment/update/{id}', [PaymentsController::class, 'updatePayment'])->name('dashboard.payments.update');
 
+
+    Route::get('/dashboard/payment/update/callback', [PaystackController::class, 'retryPaymentCallback'])->name('dashboard.payments.update.callback');
+
+
     //Auth Subscription Endpoints
 
     Route::get('/dashboard/plans', [DashboardController::class, 'subscriptions'])->name('dashboard.subscriptions');
@@ -97,15 +107,21 @@ Route::middleware('user')->group(function () {
 
     Route::post('/dashboard/subscription/checkout', [DashboardController::class, 'checkoutSubscription'])->name('plan.checkout.store');
 
+    Route::get('/dashboard/subscription/checkout/callback', [PaystackController::class, 'checkoutSubscriptionCallback'])->name('plan.checkout.store.callback');
+
     Route::put('dashboard/subscription/switch', [DashboardController::class, 'switchPackage'])->name('subscription.switch');
 
     Route::get('/dashboard/contribution', [DashboardController::class, 'contribution'])->name('dashboard.contribution');
 
     Route::post('/dashboard/contribution/store', [PaymentsController::class, 'makeContribution'])->name('dashboard.contribution.store');
 
+    Route::get('/dashboard/contribution/store/callback', [PaystackController::class, 'makeContributionCallback'])->name('dashboard.contribution.store.callback');
+
     Route::get('/dashboard/fund', [PaymentsController::class, 'walletfund'])->name('dashboard.fund');
 
     Route::post('/dashboard/fund/checkout', [PaymentsController::class, 'walletfundCheckout'])->name('dashboard.fund.store');
+
+    Route::get('/dashboard/fund/checkout/callback', [PaystackController::class, 'walletFundCallback'])->name('dashboard.fund.store.callback');
 
 
    Route::get('/dashboard/plan/debt', [DashboardController::class, 'defaultedPayment'])->name('dashboard.defaulted-payment');
@@ -116,7 +132,9 @@ Route::middleware('user')->group(function () {
 
    Route::post('/dashboard/plan/debt/store', [PaymentsController::class, 'clearDefaultStore'])->name('dashboard.defaulted-payment.store');
 
-   Route::post('/dashboard/withdrawal/process', [PaymentsController::class, 'processWithdrawal'])->name('dashboard.process-withdrawal');
+    Route::get('/dashboard/plan/debt/store/callback', [PaystackController::class, 'clearDefaultedPaymentCallback'])->name('dashboard.defaulted-payment.store.callback');
+
+    Route::post('/dashboard/withdrawal/process', [PaymentsController::class, 'processWithdrawal'])->name('dashboard.process-withdrawal');
 
     Route::get('/dashboard/contribution/claim', [DashboardController::class, 'claimStatus'])->name('dashboard.claim.status');
 
