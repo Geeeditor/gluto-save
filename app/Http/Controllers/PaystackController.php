@@ -636,7 +636,7 @@ class PaystackController extends Controller
         }
 
 
-        dd($data);
+        // dd($data);
     }
 
 

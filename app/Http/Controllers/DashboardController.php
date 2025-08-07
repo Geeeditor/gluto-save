@@ -236,7 +236,7 @@ class DashboardController extends Controller
             }
 
 
-            return redirect()->back()->with('info', 'Paystack payment option unavailable');
+            // return redirect()->back()->with('info', 'Paystack payment option unavailable');
 
         }
 
