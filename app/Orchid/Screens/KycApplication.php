@@ -27,9 +27,12 @@ class KycApplication extends Screen
      *
      * @return array
      */
+
+    // The work mo
     public function query(): iterable
     {
-        $kycApplications = UserKyc::with('user')->get()->map(function ($kyc) {
+
+        /* $kycApplications = UserKyc::with('user')->get()->map(function ($kyc) {
             return new Repository($kyc->toArray());
         });
 
@@ -38,6 +41,10 @@ class KycApplication extends Screen
             'metric' => [
                 'total_kyc' => UserKyc::count(),
             ]
+        ]; */
+
+        return [
+
         ];
     }
 
@@ -48,7 +55,7 @@ class KycApplication extends Screen
      */
     public function name(): ?string
     {
-        return 'KYC Applications';
+        return 'KYC APPLICATIONS DATA PAGE';
     }
 
     /**
@@ -69,83 +76,86 @@ class KycApplication extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::metrics(
+           /*  Layout::metrics(
                 ['Total KYC Applications' => 'metric.total_kyc']
-            ),
+            ), */
 
-            Layout::table('kycApplications', [
-                TD::make('id', 'ID')->width('20'),
-                TD::make('user.name', 'User Name')->width('150px'),
-                TD::make('selfie_photo', 'Selfie Photo')->render(
-                    fn(Repository $kyc) => '<a href="' . asset('images/kyc/' . basename($kyc->get('selfie_photo'))) . '" target="_blank" style="
-    background-color: ; /* bg-blue-600 */
-    color: white; /* text-white */
-    padding: 0.5rem 1rem; /* px-4 py-2 */
-    font-weight: 500; /* font-medium */
-    transition: background-color 0.2s; /* transition duration-200 */
-" target="_blank" class="">
-                        🔗
-                    </a>'
-                ),
-                TD::make('document_type', 'Doc Type')->width('150px'),
-                TD::make('document_front', 'Doc Front')->render(
-                    fn(Repository $kyc) => '<a href="' . asset('images/kyc/' . basename($kyc->get('document_front'))) . '" style="
-    background-color: ; /* bg-blue-600 */
-    color: white; /* text-white */
-    padding: 0.5rem 1rem; /* px-4 py-2 */
-    font-weight: 500; /* font-medium */
-    transition: background-color 0.2s; /* transition duration-200 */
-" target="_blank" class="">
-                        🔗
-                    </a>'
-                ),
-                TD::make('document_back', 'Doc Back')->render(
-                    fn(Repository $kyc) => '<a href="' . asset('images/kyc/' . basename($kyc->get('document_back'))) . '" target="_blank" style="
-    background-color: ; /* bg-blue-600 */
-    color: white; /* text-white */
-    padding: 0.5rem 1rem; /* px-4 py-2 */
-    font-weight: 500; /* font-medium */
-    transition: background-color 0.2s; /* transition duration-200 */
-" target="_blank" class="">
-                        🔗
-                    </a>'
-                ),
-                TD::make('document_id', 'Doc ID')->width('100px'),
-                TD::make('application_status', 'Application Status')->width('150px'),
+//             Layout::table('kycApplications', [
+//                 TD::make('id', 'ID')->width('20'),
+//                 TD::make('user.name', 'User Name')->width('150px'),
+//                 TD::make('selfie_photo', 'Selfie Photo')->render(
+//                     fn(Repository $kyc) => '<a href="' . asset('images/kyc/' . basename($kyc->get('selfie_photo'))) . '" target="_blank" style="
+//     background-color: ; /* bg-blue-600 */
+//     color: white; /* text-white */
+//     padding: 0.5rem 1rem; /* px-4 py-2 */
+//     font-weight: 500; /* font-medium */
+//     transition: background-color 0.2s; /* transition duration-200 */
+// " target="_blank" class="">
+//                         🔗
+//                     </a>'
+//                 ),
+//                 TD::make('document_type', 'Doc Type')->width('150px'),
+//                 TD::make('document_front', 'Doc Front')->render(
+//                     fn(Repository $kyc) => '<a href="' . asset('images/kyc/' . basename($kyc->get('document_front'))) . '" style="
+//     background-color: ; /* bg-blue-600 */
+//     color: white; /* text-white */
+//     padding: 0.5rem 1rem; /* px-4 py-2 */
+//     font-weight: 500; /* font-medium */
+//     transition: background-color 0.2s; /* transition duration-200 */
+// " target="_blank" class="">
+//                         🔗
+//                     </a>'
+//                 ),
+//                 TD::make('document_back', 'Doc Back')->render(
+//                     fn(Repository $kyc) => '<a href="' . asset('images/kyc/' . basename($kyc->get('document_back'))) . '" target="_blank" style="
+//     background-color: ; /* bg-blue-600 */
+//     color: white; /* text-white */
+//     padding: 0.5rem 1rem; /* px-4 py-2 */
+//     font-weight: 500; /* font-medium */
+//     transition: background-color 0.2s; /* transition duration-200 */
+// " target="_blank" class="">
+//                         🔗
+//                     </a>'
+//                 ),
+//                 TD::make('document_id', 'Doc ID')->width('100px'),
+//                 TD::make('application_status', 'Application Status')->width('150px'),
 
 
 
-                TD::make('actions', 'Update Status')->render(
-                    function (Repository $kyc) {
-                        return Select::make('status_' . $kyc->get('id'))
-                            ->options([
-                                'approved' => 'Approved',
-                                'pending_approval' => 'Pending Approval',
-                                'rejected' => 'Rejected'
-                            ])->width('120px')
-                            // ->default($kyc->get('application_status')) // Set default value
+//                 TD::make('actions', 'Update Status')->render(
+//                     function (Repository $kyc) {
+//                         return Select::make('status_' . $kyc->get('id'))
+//                             ->options([
+//                                 'approved' => 'Approved',
+//                                 'pending_approval' => 'Pending Approval',
+//                                 'rejected' => 'Rejected'
+//                             ])->width('120px')
+//                             // ->default($kyc->get('application_status')) // Set default value
 
-                            . Button::make('Update')
-                                ->method('updateKyc')
-                                ->parameters(['id' => $kyc->get('id')]);
-                    }
-                )
+//                             . Button::make('Update')
+//                                 ->method('updateKyc')
+//                                 ->parameters(['id' => $kyc->get('id')]);
+//                     }
+//                 )
 
-                // Layout::row([
-                //     Select::make('test_select')
-                //         ->options([
-                //             'approved' => 'Approved',
-                //             'pending_approval' => 'Pending Approval',
-                //             'rejected' => 'Rejected'
-                //         ])
-                //         ->title('Test Select')
-                // ])
-            ])
+//                 // Layout::row([
+//                 //     Select::make('test_select')
+//                 //         ->options([
+//                 //             'approved' => 'Approved',
+//                 //             'pending_approval' => 'Pending Approval',
+//                 //             'rejected' => 'Rejected'
+//                 //         ])
+//                 //         ->title('Test Select')
+//                 // ])
+//             ])
+
+            Layout::view('platform::components.kyc')
+
         ];
     }
 
-
-    public function updateKyc(Request $request)
+    // This method was migrated to a livewire class
+    /* public function updateKyc(Request $request)
     {
         $kycId = $request->get('id');
         $status = $request->get('status_' . $kycId);
@@ -194,5 +204,5 @@ class KycApplication extends Screen
         }
 
         return redirect()->back(); // Adjust the route name as needed
-    }
+    } */
 }

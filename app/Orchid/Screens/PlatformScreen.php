@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Orchid\Screens;
 
+use App\Models\ActivateDashboard;
+use App\Models\PackageSubscription;
+use App\Models\Payments;
 use App\Models\User;
 use Orchid\Screen\TD;
 use Orchid\Screen\Screen;
@@ -19,35 +22,39 @@ class PlatformScreen extends Screen
     public function query(): iterable
     {
         return [
-            'users' => User::all(), // Fetch all users
+            'users' => count(User::all()), // Fetch all users
+            'dashboards' => count(ActivateDashboard::where('dashboard_status', true)->get()),
+            'paymentProcessed' => count(Payments::where('payment_status', 'approved')->get()),
+            'activeSubscriptions' => count(PackageSubscription::where('package_status', 'active')->get())
+
         ];
     }
 
     /**
      * The name of the screen displayed in the header.
      */
-    public function name(): ?string
-    {
-        return 'Admin Dashboard';
-    }
+    // public function name(): ?string
+    // {
+    //     return '';
+    // }
 
-    /**
-     * Display header description.
-     */
-    public function description(): ?string
-    {
-        return 'Welcome, Manage Users Action With Application Settings Seemlessly.';
-    }
+    // /**
+    //  * Display header description.
+    //  */
+    // public function description(): ?string
+    // {
+    //     return '';
+    // }
 
-    /**
-     * The screen's action buttons.
-     *
-     * @return \Orchid\Screen\Action[]
-     */
-    public function commandBar(): iterable
-    {
-        return [];
-    }
+    // /**
+    //  * The screen's action buttons.
+    //  *
+    //  * @return \Orchid\Screen\Action[]
+    //  */
+    // public function commandBar(): iterable
+    // {
+    //     return [];
+    // }
 
     /**
      * The screen's layout elements.
@@ -57,15 +64,8 @@ class PlatformScreen extends Screen
     public function layout(): iterable
     {
         return [
-            // Layout::view('platform::partials.update-assets'),
-            // Layout::view('platform::partials.welcome'),
+            Layout::view('platform::components.dashboard')
 
-            Layout::table('users', [
-                TD::make('id', 'ID')->width('100'),
-                TD::make('name', 'Name'),
-                TD::make('email', 'Email'),
-                TD::make('created_at', 'Created At')->render(fn($user) => $user->created_at->format('Y-m-d H:i:s')),
-            ]),
         ];
     }
 }

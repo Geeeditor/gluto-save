@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('app_email');
             $table->string('app_phone');
             $table->string('app_address');
-            $table->decimal('rate', 10, 2)->default(0.00); // User's wallet balance
+            $table->decimal('rate', 10, 2)->default(0.00);
 
             $table->json('app_social_links')->nullable(); // Stores social media links as JSON
             $table->boolean('withdrawal_enabled')->default(false);

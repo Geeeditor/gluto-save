@@ -163,10 +163,14 @@ class UpdateUserPayment extends Screen
             switch ($payment->payment_type) {
                 case 'registration':
                     // Update ActivateDashboard status
-                    $dashboard = ActivateDashboard::where('id', $payment->payment_id)->first();
+                    $dashboard = ActivateDashboard::with('user')->where('id', $payment->payment_id)->first();
                     if ($paymentStatus === 'approved') {
                         if ($dashboard) {
                             $dashboard->update(['dashboard_status' => true]);
+                        } else {
+                            // Handle the case where the dashboard does not exist
+                            \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
+                            return; // Exit or handle accordingly
                         }
                     }
 
@@ -179,18 +183,27 @@ class UpdateUserPayment extends Screen
                     break;
 
                 case 'wallet_fund':
-                    $dashboard = ActivateDashboard::where('id', $payment->payment_id)->first();
+                    $dashboard = ActivateDashboard::with('user')->where('id', $payment->payment_id)->first();
                     if ($paymentStatus === 'approved') {
                         if ($dashboard) {
                             $dashboard->increment('wallet_balance', $payment->amount);
+                        } else {
+                            // Handle the case where the dashboard does not exist
+                            \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
+                            return; // Exit or handle accordingly
                         }
                     }
 
                     $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
-                    $dashboard->user->notify(
 
-                        DashboardMessage::make()->title('Trx Notification')->message($message)->type(Color::INFO)
-                    );
+                    if ($dashboard) { // Check again before accessing user
+                        $dashboard->user->notify(
+                            DashboardMessage::make()->title('Trx Notification')->message($message)->type(Color::INFO)
+                        );
+                    } else {
+                        // Optionally notify an admin or log an error
+                        \Log::warning('Could not send notification. Dashboard is null for payment ID: ' . $payment->payment_id);
+                    }
                     break;
 
                 case 'subscription':
@@ -200,6 +213,10 @@ class UpdateUserPayment extends Screen
 
                         if ($paymentStatus == 'approved') {
                             $subscription->increment('total_contribution', $payment->amount);
+                        } else {
+                            // Handle the case where the dashboard does not exist
+                            \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
+                            return; // Exit or handle accordingly
                         }
 
                         $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
@@ -230,6 +247,10 @@ class UpdateUserPayment extends Screen
                                 $subscription->update(['package_status' => 'matured']);
                             }
 
+                        } else {
+                            // Handle the case where the dashboard does not exist
+                            \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
+                            return; // Exit or handle accordingly
                         }
 
                         $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
@@ -268,6 +289,10 @@ class UpdateUserPayment extends Screen
                                 $subscription->update(['package_status' => 'matured']);
                             }
 
+                        } else {
+                            // Handle the case where the dashboard does not exist
+                            \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
+                            return; // Exit or handle accordingly
                         }
 
                         $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;

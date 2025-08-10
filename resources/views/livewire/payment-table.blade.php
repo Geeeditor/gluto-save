@@ -31,8 +31,8 @@
         <table class="w-full min-w-max text-left table-auto">
             <thead class="bg-[#51504f] font-semibold text-white text-sm text-left">
                 <tr>
-                    <th class="px-6 py-3">Customer</th>
                     <th class="px-6 py-3">ID</th>
+                    <th class="px-6 py-3">Customer's Name</th>
                     <th class="px-6 py-3">Amount</th>
                     <th class="px-6 py-3">Trx Ref</th>
                     <th class="px-6 py-3">Payment Method</th>
@@ -51,8 +51,8 @@
                             <td class="p-4 py-5 border-slate-200 border-b">{{ $payment->user->name }}</td>
                             <td class="p-4 py-5 border-slate-200 border-b">NGN {{ number_format($payment->amount) }}</td>
                             <td class="p-4 py-5 border-slate-200 border-b">{{ $payment->transaction_reference }}</td>
-                            <td class="p-4 py-5 border-slate-200 border-b">
-                                {{ $payment->payment_method == 'gluto_transfer' ? 'Bank Transfer' : ($payment->payment_method == 'wallet_balance' ? 'Wallet Balance' : ($payment->payment_method == 'paystack' ? 'Paystack' : 'Unknown')) }}
+                            <td class="p-4 py-5 border-slate-200 border-b capitalize">
+                                {{ $payment->payment_method == 'gluto_transfer' ? 'Bank Transfer' : ($payment->payment_method == 'wallet_balance' ? 'Wallet Balance' : ($payment->payment_method == 'paystack' ? 'Paystack' : $payment->payment_method)) }}
                                 {{-- {{ $payment->payment_method }} --}}
                             </td>
                             <td class="p-4 py-5 border-slate-200 border-b">{{ $payment->payment_type == 'registration' ? 'Registration' : ($payment->payment_type == 'wallet_fund' ? 'Wallet Funding' : ($payment->payment_type == 'contribution' ? 'Contribution' : ($payment->payment_type == 'debt_pyt' ? 'Debt Payment' : ($payment->payment_type == 'subscription' ? 'Subscription' : 'Unknown')))) }}</td>

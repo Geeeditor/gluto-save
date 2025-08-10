@@ -23,12 +23,12 @@ class UserSubscription extends Screen
      */
     public function query(): iterable
     {
-        $subscriptions = PackageSubscription::with('user')->get()->map(function ($subscription) {
-            return new Repository($subscription->toArray());
-        });
+        // $subscriptions = PackageSubscription::with('user')->get()->map(function ($subscription) {
+        //     return new Repository($subscription->toArray());
+        // });
 
         return [
-            'subscriptions' => $subscriptions,
+            // 'subscriptions' => $subscriptions,
             'metric' => [
                 'total_subscriptions' => PackageSubscription::count(),
             ]
@@ -67,32 +67,35 @@ class UserSubscription extends Screen
                 ['Total Subscriptions' => 'metric.total_subscriptions']
             ),
 
-            Layout::table('subscriptions', [
-                TD::make('id', 'ID'),
-                TD::make('user.name', 'User ID'),
-                TD::make('tier', 'Tier'),
-                TD::make('total_contribution', 'Total Contribution'),
-                TD::make('defaulted_weeks', 'Defaulted Weeks'),
-                TD::make('package_status', 'Package Status'),
-                TD::make('sub_id', 'Sub ID'),
-                TD::make('sub_fee', 'Sub Fee'),
+            // Layout::table('subscriptions', [
+            //     TD::make('id', 'ID'),
+            //     TD::make('user.name', 'User ID'),
+            //     TD::make('tier', 'Tier'),
+            //     TD::make('total_contribution', 'Total Contribution'),
+            //     TD::make('defaulted_weeks', 'Defaulted Weeks'),
+            //     TD::make('package_status', 'Package Status'),
+            //     TD::make('sub_id', 'Sub ID'),
+            //     TD::make('sub_fee', 'Sub Fee'),
 
-                TD::make('actions', 'Update Status')->render(function (Repository $subscription) {
-                    return Select::make('status_' . $subscription->get('id'))
-                        ->options([
-                            'active' => 'Active',
-                            'inactive' => 'Inactive',
-                            'matured' => 'Matured',
-                            'terminated' => 'Terminated',
-                            'pending_activation' => 'Pending Activation'
-                        ])
-                        ->default($subscription->get('package_status')) // Set default value
-                        ->width('150px')
-                        . Button::make('Update')
-                            ->method('updateSubscription')
-                            ->parameters(['id' => $subscription->get('id')]);
-                }),
-            ])
+            //     TD::make('actions', 'Update Status')->render(function (Repository $subscription) {
+            //         return Select::make('status_' . $subscription->get('id'))
+            //             ->options([
+            //                 'active' => 'Active',
+            //                 'inactive' => 'Inactive',
+            //                 'matured' => 'Matured',
+            //                 'terminated' => 'Terminated',
+            //                 'pending_activation' => 'Pending Activation'
+            //             ])
+            //             ->default($subscription->get('package_status')) // Set default value
+            //             ->width('150px')
+            //             . Button::make('Update')
+            //                 ->method('updateSubscription')
+            //                 ->parameters(['id' => $subscription->get('id')]);
+            //     }),
+            // ])
+
+            Layout::view('platform::components.subscriptions')
+
         ];
     }
 

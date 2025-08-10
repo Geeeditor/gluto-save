@@ -13,6 +13,7 @@ use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\UserWithdrawal;
 use App\Orchid\Screens\UserSubscription;
 use App\Orchid\Screens\UpdateUserPayment;
+use App\Orchid\Screens\ManageUserDashboard;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
@@ -107,6 +108,10 @@ Route::screen('/users-dashboard', UserDashboard::class)->name('platform.user-das
 Route::screen('/config/view', AppSettings::class)->name('app.config');
 
 Route::screen('/users-subscriptions', UserSubscription::class)->name('platform.user-subscription');
+
+Route::screen('/users-dashboard/manage/{id}', ManageUserDashboard::class)->name('platform.manage.user-dashboard');
+
+
 
 Route::screen('/payments', UserPayments::class)->name('platform.payments');
 

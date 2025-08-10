@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AppSetting;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\ActivateDashboard;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -168,5 +169,33 @@ class ConfigurationController extends Controller
         // Toast::info('App settings updated successfully.');
 
         return redirect()->route('platform.settings'); // Adjust the route as necessary
+    }
+
+    public function updateWallet(Request $request, $id)
+    {
+        dd('hit');
+
+        $data = $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'action' => 'required|in:add,deduct',
+        ]);
+
+        $dashboard = ActivateDashboard::find($id);
+
+        if ($dashboard) {
+            // Update the wallet balance based on the action
+            if ($data['action'] === 'add') {
+                $dashboard->wallet_balance += $data['amount'];
+            } elseif ($data['action'] === 'deduct') {
+                $dashboard->wallet_balance -= $data['amount'];
+            } else {
+                return redirect()->back()->with('message', 'No wallet balance action selected');
+            }
+
+            $dashboard->save();
+            return redirect()->back()->with('message', 'Wallet balance updated successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Dashboard not found.');
+        }
     }
 }
