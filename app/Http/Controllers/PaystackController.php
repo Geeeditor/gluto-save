@@ -9,6 +9,8 @@ use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserPaymentNotification;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Paystack as Paystack;
 
@@ -68,6 +70,33 @@ class PaystackController extends Controller
                 'receipt' => $receipt . '/' . $data['reference']
             ]);
 
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'approved',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
             return redirect()->route('dashboard')->with('info', 'Your registration payment was successfull, your dashboard is now active.');
         } else {
             $user->payments()->create([
@@ -80,6 +109,33 @@ class PaystackController extends Controller
                 'payment_status' => 'failed',
                 'receipt' => $receipt . '/' . $data['reference']
             ]);
+
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'failed',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
             return redirect()->route('dashboard.payments')->with('error', 'There was an with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
         }
@@ -143,6 +199,33 @@ class PaystackController extends Controller
                 'receipt' => $receipt . '/' . $data['reference']
             ]);
 
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'approved',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
             return redirect()->route('dashboard')->with('info', 'Your registration payment was successfull, your dashboard is now active.');
         } else {
             $payment->update([
@@ -155,6 +238,33 @@ class PaystackController extends Controller
                 'payment_status' => 'failed',
                 'receipt' => $receipt . '/' . $data['reference']
             ]);
+
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'failed',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
             return redirect()->route('dashboard.payments')->with('error', 'There was an with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
         }
@@ -214,6 +324,33 @@ class PaystackController extends Controller
 
             $package->increment('total_contribution', $paymentData['amount']);
 
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'approved',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference']
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
             return redirect()->route('dashboard.subscriptions')->with('info', 'Your order was processed and your subscription now active');
 
         } else{
@@ -241,6 +378,33 @@ class PaystackController extends Controller
                 'payment_status' => 'failed',
                 'receipt' => $receipt . '/' . $data['reference']
             ]);
+
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'failed',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $receipt,
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
             return redirect()->route('dashboard.payments')->with('error', 'There was an with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
         }
@@ -296,6 +460,33 @@ class PaystackController extends Controller
                     $subscription->update(['package_status' => 'matured']);
                 }
 
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $subscription['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
+
 
                 return redirect()->route('dashboard.payments')->with('info', 'Your subscription repayment was processed successfully');
             } else {
@@ -306,6 +497,33 @@ class PaystackController extends Controller
                     'payment_type' => $transactionData['payment_type'],
                     'receipt' => $receipt . '/' . $data['reference'],
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'failed',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 return redirect()->route('dashboard.payments')->with('error', 'There was issue an with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
             }
@@ -326,6 +544,32 @@ class PaystackController extends Controller
 
                 $dashboard->increment('wallet_balance', $transactionData['amount']);
 
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 return redirect()->route('dashboard.payments')->with('info', 'Your wallet funding order  was processed successfully');
             } else {
@@ -336,6 +580,33 @@ class PaystackController extends Controller
                     'payment_type' => $transactionData['payment_type'],
                     'receipt' => $receipt . '/' . $data['reference'],
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'failed',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 return redirect()->route('dashboard.payments')->with('error', 'There was an issue with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
             }
@@ -358,6 +629,32 @@ class PaystackController extends Controller
 
                 $subscription->increment('total_contribution', $transactionData['amount']);
 
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 return redirect()->route('dashboard.payments')->with('info', 'Your subscription repayment was processed successfully');
             } else {
@@ -368,6 +665,33 @@ class PaystackController extends Controller
                     'payment_type' => $transactionData['payment_type'],
                     'receipt' => $receipt . '/' . $data['reference'],
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'failed',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 return redirect()->route('dashboard.payments')->with('error', 'There was issue an with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
             }
@@ -405,6 +729,33 @@ class PaystackController extends Controller
                     $subscription->update(['package_status' => 'matured']);
                 }
 
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
+
 
 
 
@@ -417,6 +768,33 @@ class PaystackController extends Controller
                     'payment_type' => $transactionData['payment_type'],
                     'receipt' => $receipt . '/' . $data['reference'],
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['trxRef'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'failed',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => $receipt . '/' . $data['reference'],
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 return redirect()->route('dashboard.payments')->with('error', 'There was an issue with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
             }
@@ -477,6 +855,33 @@ class PaystackController extends Controller
                 $subscription->update(['package_status' => 'matured']);
             }
 
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'approved',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $paymentData['receipt'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
 
 
             return redirect()->route('dashboard.subscriptions')->with('info', 'Your contribution payment was processed successfully');
@@ -492,6 +897,33 @@ class PaystackController extends Controller
                 'payment_status' => 'failed',
                 'receipt' => $paymentData['receipt']
             ]);
+
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'failed',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $paymentData['receipt'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
             return redirect()->route('dashboard.payments')->with('info', 'There was an issue with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
         }
@@ -558,6 +990,33 @@ class PaystackController extends Controller
                 $subscription->update(['package_status' => 'matured']);
             }
 
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'approved',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $paymentData['receipt'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
 
 
 
@@ -572,6 +1031,33 @@ class PaystackController extends Controller
                 'transaction_reference' => $paymentData['trxRef'],
                 'payment_id' => $subscription->id,
             ]);
+
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $paymentData['amount'],
+                'transaction_reference' => $paymentData['trxRef'],
+                'payment_method' => $paymentData['payment_method'],
+                'payment_status' => 'failed',
+                'payment_type' => $paymentData['payment_type'],
+                'receipt' => $paymentData['receipt'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
             return redirect()->route('dashboard.payments')->with('error', 'There was an issue with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
         }
@@ -617,6 +1103,33 @@ class PaystackController extends Controller
 
             $dashboard->increment('wallet_balance', $transactionData['amount']);
 
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $transactionData['amount'],
+                'transaction_reference' => $transactionData['trxRef'],
+                'payment_method' => $transactionData['payment_method'],
+                'payment_status' => 'approved',
+                'payment_type' => $transactionData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
 
             return redirect()->route('dashboard')->with('info', 'Your wallet funding order  was processed successfully');
         } else {
@@ -631,6 +1144,33 @@ class PaystackController extends Controller
                 'transaction_reference' => $transactionData['trxRef'],
                 'payment_id' => $dashboard->id,
             ]);
+
+            $paymentDetails = [
+                'name' => $user->name,
+                'amount' => $transactionData['amount'],
+                'transaction_reference' => $transactionData['trxRef'],
+                'payment_method' => $transactionData['payment_method'],
+                'payment_status' => 'failed',
+                'payment_type' => $transactionData['payment_type'],
+                'receipt' => $receipt . '/' . $data['reference'],
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
             return redirect()->route('dashboard.payments')->with('error', 'There was an issue with processing your payment, please try again if you weren\'t debited and if debited kindly contact support.');
         }

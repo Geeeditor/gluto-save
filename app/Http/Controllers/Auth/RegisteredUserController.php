@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\View\View;
+use App\Mail\Registration;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\Registered;
 
@@ -95,6 +97,30 @@ class RegisteredUserController extends Controller
             // Trigger the event for the newly created user
             event(new Registered($authUser));
 
+            $userData = [
+                'name' => $authUser->name,
+                'email' => $authUser->email,
+                'referral_code' => $referral_code,
+                'created_at' => $authUser->created_at,
+            ];
+
+            try {
+
+                Mail::to($authUser->email)->send(new Registration($userData));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
             // Log in the newly created user
             Auth::login($authUser);
 
@@ -125,6 +151,30 @@ class RegisteredUserController extends Controller
                 'referral_id' => $referral_code,
                 'password' => Hash::make($request->password),
             ]);
+
+            $userData = [
+                'name' => $authUser->name,
+                'email' => $authUser->email,
+                'referral_code' => $referral_code,
+                'created_at' => $authUser->created_at,
+            ];
+
+            try {
+
+                Mail::to($authUser->email)->send(new Registration($userData));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
 
 
             // Trigger the event for the newly created user

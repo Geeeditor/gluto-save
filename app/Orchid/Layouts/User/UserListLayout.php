@@ -46,6 +46,18 @@ class UserListLayout extends Table
                         'user' => $user->id,
                     ])),
 
+            TD::make('userype', __('User Type'))
+                ->sort()
+                ->cantHide()
+                ->filter(Input::make())
+                ->render(fn (User $user) => ModalToggle::make($user->usertype)
+                    ->modal('editUserModal')
+                    ->modalTitle($user->presenter()->title())
+                    ->method('saveUser')
+                    ->asyncParameters([
+                        'user' => $user->id,
+                    ])),
+
             TD::make('created_at', __('Created'))
                 ->usingComponent(DateTimeSplit::class)
                 ->align(TD::ALIGN_RIGHT)

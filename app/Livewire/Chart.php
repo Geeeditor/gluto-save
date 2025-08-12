@@ -54,7 +54,7 @@ class Chart extends Component
 
         $cryptoWithdrawal = $withdrawals->whereNotNull('crypto_option');
 
-        $rate = AppSetting::first()->value('rate');
+        $rate = AppSetting::first() ? AppSetting::first()->value('rate') : 0.00;
 
         $cryptoWithdrawalValue = [];
 

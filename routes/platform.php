@@ -112,7 +112,6 @@ Route::screen('/users-subscriptions', UserSubscription::class)->name('platform.u
 Route::screen('/users-dashboard/manage/{id}', ManageUserDashboard::class)->name('platform.manage.user-dashboard');
 
 
-
 Route::screen('/payments', UserPayments::class)->name('platform.payments');
 
 Route::screen('/payments/update/{id}', UpdateUserPayment::class)->name('platform.payments.update');

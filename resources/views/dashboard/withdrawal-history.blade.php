@@ -45,7 +45,17 @@
                                     </div>
                                 @endif
                             </td>
-                            <td class="px-6 py-4">{{ number_format($withdrawal->amount, 2 ) }}</td>
+                            <td class="px-6 py-4">
+
+
+                                @if ($withdrawal->wallet_address)
+                                    USD {{ number_format($withdrawal->amount, 2 ) }}
+                                @else
+                                   NGN {{ number_format($withdrawal->amount, 2 ) }}
+                                @endif
+                            </td>
+
+
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="{{$withdrawal->withdrawal_status == 'pending' ? 'inline-block bg-yellow-100 px-3 py-1 rounded-full font-semibold text-yellow-800 text-xs' : ($withdrawal->withdrawal_status == 'failed' ? 'inline-block bg-red-100 px-3 py-1 rounded-full font-semibold text-red-800 text-xs' : 'inline-block bg-green-100 px-3 py-1 rounded-full font-semibold text-green-800 text-xs') }}">
                                     {!! $withdrawal->withdrawal_status == 'pending' || $withdrawal->withdrawal_status == 'approved' ? ucfirst($withdrawal->withdrawal_status) : 'Failed' !!}

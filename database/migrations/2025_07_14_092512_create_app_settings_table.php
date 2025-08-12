@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('app_favicon');
             $table->string('support_email');
             $table->string('app_email');
-            $table->string('app_phone');
+            // $table->string('app_phone');
             $table->string('app_address');
             $table->decimal('rate', 10, 2)->default(0.00);
 
@@ -27,6 +27,7 @@ return new class extends Migration
             $table->boolean('withdrawal_enabled')->default(false);
             $table->boolean('contribution_enabled')->default(false);
             $table->boolean('subscription_enabled')->default(false);
+            $table->boolean('topup_enabled')->default(false);
             $table->timestamps();
         });
     }

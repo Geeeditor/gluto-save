@@ -38,8 +38,8 @@
                         <option value="Female">Female</option>
                     </select>
                     @error('gender')
-                    {{ $message }}
-                @enderror
+                        {{ $message }}
+                    @enderror
                 </div>
 
                 <div class="form-group">
@@ -55,8 +55,8 @@
                     <input type="text" class="form-control"
                          value="" placeholder="Address" name="address">
                          @error('adddress')
-                         {{ $message }}
-                     @enderror
+                            {{ $message }}
+                         @enderror
                 </div>
 
                 <div class="form-group">

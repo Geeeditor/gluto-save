@@ -41,7 +41,7 @@ class AppSettings extends Screen
      */
     public function name(): ?string
     {
-        return 'App Settings';
+        return 'App Configuration';
     }
 
     /**
@@ -68,11 +68,18 @@ class AppSettings extends Screen
 
         return [
             Layout::rows([
+                Input::make('appSetting.rate')
+                    ->type('number')
+                    ->title(__('Exchange Rate'))
+                    ->value($appSettings->rate)
+                    ->step('0.01')
+                    ->placeholder(__('1560.00')),
+
                 Select::make('appSetting.withdrawal_enabled')
                     ->title('Enable Withdrawal')
                     ->options([
-                        1 => 'Yes',
-                        0 => 'No',
+                        1 => 'Enable',
+                        0 => 'Disable',
                     ])
                     ->value($appSettings->withdrawal_enabled)
                     ->empty('Select an option'),
@@ -80,8 +87,8 @@ class AppSettings extends Screen
                     Select::make('appSetting.contribution_enabled')
                     ->title('Enable Contribution')
                     ->options([
-                        1 => 'Yes',
-                        0 => 'No',
+                        1 => 'Enable',
+                        0 => 'Disable',
                     ])
                     ->value($appSettings->contribution_enabled)
                     ->empty('Select an option'),
@@ -89,10 +96,19 @@ class AppSettings extends Screen
                 Select::make('appSetting.subscription_enabled')
                     ->title('Enable Subscription')
                     ->options([
-                        1 => 'Yes',
-                        0 => 'No',
+                        1 => 'Enable',
+                        0 => 'Disable',
                     ])
                     ->value($appSettings->subscription_enabled)
+                    ->empty('Select an option'),
+
+                Select::make('appSetting.topup_enabled')
+                    ->title('Enable Wallet Funding')
+                    ->options([
+                        1 => 'Enable',
+                        0 => 'Disable',
+                    ])
+                    ->value($appSettings->topup_enabled)
                     ->empty('Select an option'),
 
                 Button::make('Update Settings')
@@ -118,6 +134,8 @@ class AppSettings extends Screen
             'appSetting.withdrawal_enabled' => 'required|boolean',
             'appSetting.contribution_enabled' => 'required|boolean',
             'appSetting.subscription_enabled' => 'required|boolean',
+            'appSetting.topup_enabled' => 'required|boolean',
+            'appSetting.rate' => 'required',
             // Include other fields as needed
         ]);
 

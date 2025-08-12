@@ -13,13 +13,16 @@ class AppSetting extends Model
         'app_logo',
         'app_favicon',
         'app_email',
-        'app_phone',
+        // 'app_phone',
         'support_email',
         'app_address',
         'app_social_links', // JSON field for social media links
         'contribution_enabled',
         'subscription_enabled',
-        'withdrawal_enabled'
+        'withdrawal_enabled',
+        'topup_enabled',
+        'rate'
+
         // 'app_terms_conditions', // JSON field for terms and conditions
         // 'app_privacy_policy', // JSON field for privacy policy
     ];

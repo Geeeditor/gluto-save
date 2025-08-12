@@ -11,7 +11,7 @@
         </style>
 
         @php
-            $dollarRate = 1560;
+            $dollarRate = $rate;
         @endphp
 
         <div class="flex items-center">

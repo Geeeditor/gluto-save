@@ -101,7 +101,7 @@ class UserEditScreen extends Screen
 
             Layout::block(UserEditLayout::class)
                 ->title(__('Profile Information'))
-                ->description(__('Update your account\'s profile information and email address.'))
+                ->description(__('Provide user registeration information'))
                 ->commands(
                     Button::make(__('Save'))
                         ->type(Color::BASIC)
@@ -112,7 +112,7 @@ class UserEditScreen extends Screen
 
             Layout::block(UserPasswordLayout::class)
                 ->title(__('Password'))
-                ->description(__('Ensure your account is using a long, random password to stay secure.'))
+                ->description(__('Ensure your account uses a secure alphanumerical 8 digit long password.'))
                 ->commands(
                     Button::make(__('Save'))
                         ->type(Color::BASIC)
@@ -121,27 +121,27 @@ class UserEditScreen extends Screen
                         ->method('save')
                 ),
 
-            Layout::block(UserRoleLayout::class)
-                ->title(__('Roles'))
-                ->description(__('A Role defines a set of tasks a user assigned the role is allowed to perform.'))
-                ->commands(
-                    Button::make(__('Save'))
-                        ->type(Color::BASIC)
-                        ->icon('bs.check-circle')
-                        ->canSee($this->user->exists)
-                        ->method('save')
-                ),
+            // Layout::block(UserRoleLayout::class)
+            //     ->title(__('Account Type'))
+            //     ->description(__('A Role defines a set of tasks an account is is allowed to perform.'))
+            //     ->commands(
+            //         Button::make(__('Save'))
+            //             ->type(Color::BASIC)
+            //             ->icon('bs.check-circle')
+            //             ->canSee($this->user->exists)
+            //             ->method('save')
+            //     ),
 
-            Layout::block(RolePermissionLayout::class)
-                ->title(__('Permissions'))
-                ->description(__('Allow the user to perform some actions that are not provided for by his roles'))
-                ->commands(
-                    Button::make(__('Save'))
-                        ->type(Color::BASIC)
-                        ->icon('bs.check-circle')
-                        ->canSee($this->user->exists)
-                        ->method('save')
-                ),
+            // Layout::block(RolePermissionLayout::class)
+            //     ->title(__('Permissions'))
+            //     ->description(__('Allow the user to perform some actions that are not provided for by his roles'))
+            //     ->commands(
+            //         Button::make(__('Save'))
+            //             ->type(Color::BASIC)
+            //             ->icon('bs.check-circle')
+            //             ->canSee($this->user->exists)
+            //             ->method('save')
+            //     ),
 
         ];
     }

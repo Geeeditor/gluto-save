@@ -84,6 +84,10 @@
         </div>
 
         <div class="d-flex flex-col sidebar-navigation">
+            {{-- <form action="{{route('test.mail')}}" method="post">
+                @csrf
+                <button type="submit">submit</button>
+            </form> --}}
             <a href="{{ route('dashboard') }}" class="d-flex sidebar-navigation-list align-center">
                 <img src="{{ asset('assets/images/grid.png') }}">
                 <span class="text-white">Dashboard</span>

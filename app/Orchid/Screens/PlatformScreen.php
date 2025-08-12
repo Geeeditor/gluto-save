@@ -65,7 +65,6 @@ class PlatformScreen extends Screen
     {
         return [
             Layout::view('platform::components.dashboard')
-
         ];
     }
 }

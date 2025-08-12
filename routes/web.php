@@ -40,7 +40,7 @@ Route::get('/admin/config/update', [ConfigurationController::class, 'update'])->
 
 Route::post('/admin/config/save', [ConfigurationController::class, 'save'])->middleware('admin')->name('platform.config.save');
 
-Route::put('/admin/config/update/{id}', [ConfigurationController::class, 'updateWallet'])->middleware('admin')->name('platform.config.update-config');
+Route::put('/admin/config/update/{id}', [ConfigurationController::class, 'updateConfig'])->middleware('admin')->name('platform.config.update-config');
 
 //Buggy!!
 Route::put('/admin/dashboard/wallet-balance/{id}', [ConfigurationController::class, 'updateWallet'])->middleware('admin')->name('platform.wallet.update');
@@ -144,6 +144,8 @@ Route::middleware('user')->group(function () {
 
 
     Route::put('/dashboard/contribution/claim/{sub_id}', [PaymentsController::class, 'claimContribution'])->name('dashboard.contribution.claim');
+
+    Route::post('/dashboard/test', [DashboardController::class, 'testMail'])->name('test.mail');
 
 });
 

@@ -40,11 +40,13 @@ class ConfigurationController extends Controller
             'appSetting.app_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|dimensions:min_width=50,min_height=50,max_width=100,max_height=100',
             'appSetting.support_email' => 'nullable|email',
             'appSetting.app_email' => 'required|email|unique:app_settings,app_email,' . ($request->appSetting['id'] ?? 'NULL'), // Unique validation excluding current record
-            'appSetting.app_phone' => 'nullable|string',
+            // 'appSetting.app_phone' => 'nullable|string',
+            'appSetting.rate' => 'nullable',
             'appSetting.app_address' => 'nullable|string',
             'appSetting.withdrawal_enabled' => 'boolean',
             'appSetting.contribution_enabled' => 'boolean',
             'appSetting.subscription_enabled' => 'boolean',
+            'appSetting.topup_enabled' => 'boolean',
             'appSetting.app_social_links.whatsapp' => 'nullable|url',
         'appSetting.app_social_links.twitter' => 'nullable|url',
         'appSetting.app_social_links.instagram' => 'nullable|url',
@@ -112,11 +114,13 @@ class ConfigurationController extends Controller
             'appSetting.app_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|dimensions:min_width=50,min_height=50,max_width=100,max_height=100',
             'appSetting.support_email' => 'nullable|email',
             'appSetting.app_email' => 'required|email',
-            'appSetting.app_phone' => 'nullable|string',
+            // 'appSetting.app_phone' => 'nullable|string',
             'appSetting.app_address' => 'nullable|string',
+            'appSetting.rate' => 'nullable',
             'appSetting.withdrawal_enabled' => 'boolean',
             'appSetting.contribution_enabled' => 'boolean',
             'appSetting.subscription_enabled' => 'boolean',
+            'appSetting.topup_enabled' => 'boolean',
             'appSetting.app_social_links.whatsapp' => 'nullable|url',
             'appSetting.app_social_links.twitter' => 'nullable|url',
             'appSetting.app_social_links.instagram' => 'nullable|url',
@@ -171,31 +175,31 @@ class ConfigurationController extends Controller
         return redirect()->route('platform.settings'); // Adjust the route as necessary
     }
 
-    public function updateWallet(Request $request, $id)
-    {
-        dd('hit');
+    // public function updateWallet(Request $request, $id)
+    // {
+    //     dd('hit');
 
-        $data = $request->validate([
-            'amount' => 'required|numeric|min:0',
-            'action' => 'required|in:add,deduct',
-        ]);
+    //     $data = $request->validate([
+    //         'amount' => 'required|numeric|min:0',
+    //         'action' => 'required|in:add,deduct',
+    //     ]);
 
-        $dashboard = ActivateDashboard::find($id);
+    //     $dashboard = ActivateDashboard::find($id);
 
-        if ($dashboard) {
-            // Update the wallet balance based on the action
-            if ($data['action'] === 'add') {
-                $dashboard->wallet_balance += $data['amount'];
-            } elseif ($data['action'] === 'deduct') {
-                $dashboard->wallet_balance -= $data['amount'];
-            } else {
-                return redirect()->back()->with('message', 'No wallet balance action selected');
-            }
+    //     if ($dashboard) {
+    //         // Update the wallet balance based on the action
+    //         if ($data['action'] === 'add') {
+    //             $dashboard->wallet_balance += $data['amount'];
+    //         } elseif ($data['action'] === 'deduct') {
+    //             $dashboard->wallet_balance -= $data['amount'];
+    //         } else {
+    //             return redirect()->back()->with('message', 'No wallet balance action selected');
+    //         }
 
-            $dashboard->save();
-            return redirect()->back()->with('message', 'Wallet balance updated successfully!');
-        } else {
-            return redirect()->back()->with('error', 'Dashboard not found.');
-        }
-    }
+    //         $dashboard->save();
+    //         return redirect()->back()->with('message', 'Wallet balance updated successfully!');
+    //     } else {
+    //         return redirect()->back()->with('error', 'Dashboard not found.');
+    //     }
+    // }
 }

@@ -61,6 +61,16 @@ class PlatformProvider extends OrchidServiceProvider
             //     // ->route('platform.kyc.update')
             //     ->divider(),
 
+            Menu::make('Create New Account')
+                ->icon('bs.person-lines-fill')
+                ->route('platform.systems.users.create')
+                ->divider(),
+
+            Menu::make('Manage User Accounts')
+                ->icon('bs.person-lines-fill')
+                ->route('platform.systems.users')
+                ->divider(),
+
             Menu::make('Manage User Dashboard')
                 ->icon('bs.person-lines-fill')
                 ->route('platform.user-dashboard')

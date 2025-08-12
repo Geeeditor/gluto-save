@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WithdrawalConfirmation;
+use App\Models\AppSetting;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Models\WithdrawalAccount;
 use Illuminate\Support\Facades\DB;
+use App\Orchid\Screens\AppSettings;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserPaymentNotification;
 use Unicodeveloper\Paystack\Paystack;
 use App\Http\Controllers\DashboardController;
 
@@ -83,6 +88,8 @@ class PaymentsController extends Controller
             'payment_status' => 'pending',
         ];
 
+        $receipt = $this->userService->generateReceipt();
+
         // dd($package);
 
         if ($data['payment_method'] == 'wallet_balance') {
@@ -96,15 +103,16 @@ class PaymentsController extends Controller
 
                 $receipt = $this->userService->generateReceipt();
 
-                DB::transaction(function () use ( $transactionData, $transaction, $package, $activeDashboard) {
+                DB::transaction(function () use ( $user, $transactionData, $transaction, $package, $activeDashboard, $receipt) {
                     $activeDashboard->decrement('wallet_balance', $transactionData['amount']);
 
                     $transaction->update([
 
                         'payment_method' => $transactionData['payment_method'],
                         'payment_type' => $transactionData['payment_type'],
-                        'payment_status' => $transactionData['payment_status'],
+                        'payment_status' => 'approved',
                         'amount' => $transactionData['amount'],
+                        'receipt' => $receipt == null ? $receipt : $transaction->receipt,
                     ]);
 
                     $package->increment('total_contribution', $transactionData['amount']);
@@ -115,11 +123,41 @@ class PaymentsController extends Controller
                         $package->update(['package_status' => 'matured']);
                     }
 
+                    $paymentDetails = [
+                        'name' => $user->name,
+                        'amount' => $transactionData['amount'],
+                        'transaction_reference' => $transactionData['transaction_reference'],
+                        'payment_method' => $transactionData['payment_method'],
+                        'payment_status' => 'approved',
+                        'payment_type' => $transactionData['payment_type'],
+                        'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                    ];
+
+                    try {
+
+                        Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                        // Mail::raw('This is a test email.', function ($message) {
+                        //     $message->to('alfredjoe@me.com')
+                        //         ->subject('Test Email');
+                        // });
+
+                        \Log::info('Test email sent successfully');
+                    } catch (\Exception $e) {
+                        // Log the error
+                        \Log::error('Error sending test email: ' . $e->getMessage());
+                        return redirect()->back()->with('error', $e->getMessage());
+
+                    }
+
 
 
 
 
                 });
+
+
+
 
 
                 return redirect()->route('dashboard.subscriptions')->with('info', 'Your contribution repayment was processed successfully');
@@ -132,9 +170,9 @@ class PaymentsController extends Controller
                     return redirect()->back()->with('error', 'Insufficient Wallet Balance');
                 }
 
-                $receipt = $this->userService->generateReceipt();
+                // $receipt = $this->userService->generateReceipt();
 
-                DB::transaction(function () use ($transactionData, $transaction, $package, $receipt) {
+                DB::transaction(function () use ($user, $transactionData, $transaction, $package, $receipt) {
 
                     $transaction->update([
 
@@ -151,6 +189,32 @@ class PaymentsController extends Controller
 
                     $package->increment('total_contribution', $transactionData['amount']);
 
+                    $paymentDetails = [
+                        'name' => $user->name,
+                        'amount' => $transactionData['amount'],
+                        'transaction_reference' => $transactionData['transaction_reference'],
+                        'payment_method' => $transactionData['payment_method'],
+                        'payment_status' => 'approved',
+                        'payment_type' => $transactionData['payment_type'],
+                        'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                    ];
+
+                    try {
+
+                        Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                        // Mail::raw('This is a test email.', function ($message) {
+                        //     $message->to('alfredjoe@me.com')
+                        //         ->subject('Test Email');
+                        // });
+
+                        \Log::info('Test email sent successfully');
+                    } catch (\Exception $e) {
+                        // Log the error
+                        \Log::error('Error sending test email: ' . $e->getMessage());
+                        return redirect()->back()->with('error', $e->getMessage());
+
+                    }
 
                 });
 
@@ -164,9 +228,9 @@ class PaymentsController extends Controller
                     return redirect()->back()->with('error', 'Insufficient Wallet Balance');
                 }
 
-                $receipt = $this->userService->generateReceipt();
+                // $receipt = $this->userService->generateReceipt();
 
-                DB::transaction(function () use ($transactionData, $transaction, $package, $activeDashboard) {
+                DB::transaction(function () use ($user, $transactionData, $transaction, $package, $activeDashboard, $receipt) {
                     $activeDashboard->decrement('wallet_balance', $transactionData['amount']);
 
                     $package->increment('total_contribution', $transactionData['amount']);
@@ -181,6 +245,7 @@ class PaymentsController extends Controller
                         'payment_method' => $transactionData['payment_method'],
                         'payment_type' => $transactionData['payment_type'],
                         'payment_status' => 'approved',
+                        'receipt' => $receipt == null ? $receipt : $transaction->receipt,
                         // 'amount' => $transactionData['amount'],
                     ]);
 
@@ -191,6 +256,33 @@ class PaymentsController extends Controller
 
                     if ($package->total_contribution == $expectedContribution) {
                         $package->update(['package_status' => 'matured']);
+                    }
+
+                    $paymentDetails = [
+                        'name' => $user->name,
+                        'amount' => $transactionData['amount'],
+                        'transaction_reference' => $transactionData['transaction_reference'],
+                        'payment_method' => $transactionData['payment_method'],
+                        'payment_status' => 'approved',
+                        'payment_type' => $transactionData['payment_type'],
+                        'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                    ];
+
+                    try {
+
+                        Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                        // Mail::raw('This is a test email.', function ($message) {
+                        //     $message->to('alfredjoe@me.com')
+                        //         ->subject('Test Email');
+                        // });
+
+                        \Log::info('Test email sent successfully');
+                    } catch (\Exception $e) {
+                        // Log the error
+                        \Log::error('Error sending test email: ' . $e->getMessage());
+                        return redirect()->back()->with('error', $e->getMessage());
+
                     }
 
 
@@ -253,7 +345,7 @@ class PaymentsController extends Controller
                 return redirect()->back()->with('error', 'Error uploading payment proof please try again.');
             }
 
-            DB::transaction(function()  use ( $fileName, $transactionData, $transaction, $package){
+            DB::transaction(function()  use ( $user, $fileName, $transactionData, $transaction, $package) {
 
                 if($transactionData['payment_type'] == 'subscription'){
                 $package->update([
@@ -268,6 +360,33 @@ class PaymentsController extends Controller
                     'payment_status'=> $transactionData['payment_status'],
                     'amount' => $transactionData['amount'],
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $transactionData['amount'],
+                    'transaction_reference' => $transactionData['transaction_reference'],
+                    'payment_method' => $transactionData['payment_method'],
+                    'payment_status' => 'pending',
+                    'payment_type' => $transactionData['payment_type'],
+                    'receipt' => null,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
 
 
@@ -412,6 +531,34 @@ class PaymentsController extends Controller
                     'payment_type' => $paymentData['payment_type'],
                     'transaction_reference' => $paymentData['trxRef']
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $paymentData['amount'],
+                    'transaction_reference' => $paymentData['trxRef'],
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_status' => 'pending',
+                    'payment_type' => $paymentData['payment_type'],
+                    'receipt' =>  null,
+                    // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
             });
 
             return redirect()->route('dashboard.payments')->with('info', 'Your payment  has been submitted. Please wait for confirmation.');
@@ -512,6 +659,34 @@ class PaymentsController extends Controller
                     'payment_type' => $paymentData['payment_type'],
                     'transaction_reference' => $paymentData['trxRef']
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $paymentData['amount'],
+                    'transaction_reference' => $paymentData['trxRef'],
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_status' => 'pending',
+                    'payment_type' => $paymentData['payment_type'],
+                    'receipt' => null,
+                    // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
             });
 
             return redirect()->route('dashboard.payments')->with('info', 'Your payment  has been submitted. Please wait for confirmation.');
@@ -559,6 +734,34 @@ class PaymentsController extends Controller
 
                 if ($subscription->total_contribution >= $expectedContribution) {
                     $subscription->update(['package_status' => 'matured']);
+                }
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $paymentData['amount'],
+                    'transaction_reference' => $paymentData['trxRef'],
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $paymentData['payment_type'],
+                    'receipt' => $receipt
+                    // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
                 }
 
 
@@ -689,6 +892,34 @@ class PaymentsController extends Controller
                     'payment_type' => $paymentData['payment_type'],
                     'transaction_reference' => $paymentData['trxRef']
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $paymentData['amount'],
+                    'transaction_reference' => $paymentData['trxRef'],
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_status' => 'pending',
+                    'payment_type' => $paymentData['payment_type'],
+                    'receipt' => null,
+                    // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
             });
 
             return redirect()->route('dashboard.payments')->with('info', 'Your payment  has been submitted. Please wait for confirmation.');
@@ -730,6 +961,34 @@ class PaymentsController extends Controller
 
                 if ($subscription->total_contribution >= $expectedContribution) {
                     $subscription->update(['package_status' => 'matured']);
+                }
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $paymentData['amount'],
+                    'transaction_reference' => $paymentData['trxRef'],
+                    'payment_method' => $paymentData['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $paymentData['payment_type'],
+                    'receipt' => $receipt,
+                    // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
                 }
             });
 
@@ -912,8 +1171,8 @@ class PaymentsController extends Controller
     ]);
     $user = Auth::user();
     $trxType = 'withdrawal';
-    $appSettings = null;
-    $dollarRate = 1560.00;
+    $appSettings = AppSetting::first() ? AppSetting::first() : 0.00;
+    $dollarRate = $appSettings->rate ;
 
     // dd($data['amount']);
 
@@ -943,7 +1202,7 @@ class PaymentsController extends Controller
 
 
             // For bank withdrawal
-        $withdrawal =$user->withdrawals()->create([
+        $withdrawal = $user->withdrawals()->create([
             'user_id' => $user->id,
             'amount' => $request->amount,
             'account_name' => $account->account_name,
@@ -952,7 +1211,33 @@ class PaymentsController extends Controller
             'withdrawal_status' => 'pending',
             'transaction_reference' => $trxRef,
         ]);
-    }
+
+        $withdrawalData = [
+            'name' => $user->name,
+            'amount' => $request->amount,
+            'withdrawal_status' => 'pending',
+            'transaction_reference' => $trxRef,
+        ];
+
+            try {
+
+                Mail::to($user->email)->send(new WithdrawalConfirmation($withdrawalData));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
+
+        }
     elseif ($request->withdrawal_type === 'crypto') {
         $account = $user->withdrawalAccounts()->find($data['withdrawal_id']);
 
@@ -992,7 +1277,34 @@ class PaymentsController extends Controller
             'withdrawal_status' => 'pending',
             'transaction_reference' => $trxRef,
         ]);
-    }
+
+            $withdrawalData = [
+                'name' => $user->name,
+                'amount' => $convertedRate,
+                'withdrawal_status' => 'pending',
+                'transaction_reference' => $trxRef,
+            ];
+
+            try {
+
+                Mail::to($user->email)->send(new WithdrawalConfirmation($withdrawalData));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
+            }
+
+
+
+        }
 
     // return response()->json([
     //     'message' => 'Withdrawal request submitted successfully.',

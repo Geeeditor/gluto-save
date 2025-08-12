@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\AppSetting;
 use Illuminate\Support\Str;
+use App\Mail\KycApplication;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use App\Models\PackageSubscription;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserPaymentNotification;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Notification as Notification;
 use Unicodeveloper\Paystack\Paystack as Paystack;
@@ -91,6 +95,34 @@ class DashboardController extends Controller
                         'transaction_reference' => $trxRef,
                         'payment_id' => $user->activeDashboard()->first()->id
                     ]);
+
+                    $paymentDetails = [
+                        'name' => $user->name,
+                        'amount' => $data['amount'],
+                        'transaction_reference' => $trxRef,
+                        'payment_method' => $data['payment_method'],
+                        'payment_status' => 'pending',
+                        'payment_type' => $trxType,
+                        'receipt' => null,
+                        // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                    ];
+
+                    try {
+
+                        Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                        // Mail::raw('This is a test email.', function ($message) {
+                        //     $message->to('alfredjoe@me.com')
+                        //         ->subject('Test Email');
+                        // });
+
+                        \Log::info('Test email sent successfully');
+                    } catch (\Exception $e) {
+                        // Log the error
+                        \Log::error('Error sending test email: ' . $e->getMessage());
+                        return redirect()->back()->with('error', $e->getMessage());
+
+                    }
 
                 });
 
@@ -200,6 +232,34 @@ class DashboardController extends Controller
                     // 'transaction_reference' => $trxRef
                 ]);
 
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $data['amount'],
+                    'transaction_reference' => $trxRef,
+                    'payment_method' => $data['payment_method'],
+                    'payment_status' => 'pending',
+                    'payment_type' => $trxType,
+                    'receipt' => null,
+                    // 'receipt' => $receipt == null ? $receipt : $transaction->receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
+
             });
 
             return redirect()->route('dashboard')->with('info', 'Your payment  has been resubmitted successfully. Please wait for confirmation.');
@@ -245,9 +305,6 @@ class DashboardController extends Controller
 
 
     }
-
-
-
 
     public function index(PackageSubscription $packageSubscription) {
         $user =  Auth::user();
@@ -377,6 +434,33 @@ class DashboardController extends Controller
         // Store the KYC documents
         $kyc = $user->kyc()->create($data);
 
+        $kycData = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'document_id' => $data['document_id'],
+            'document_type' => $data['document_type'],
+            'application_status' => $data['application_status'],
+        ];
+
+        try {
+
+            Mail::to($user->email)->send(new KycApplication($kycData));
+
+            // Mail::raw('This is a test email.', function ($message) {
+            //     $message->to('alfredjoe@me.com')
+            //         ->subject('Test Email');
+            // });
+
+            \Log::info('Test email sent successfully');
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error sending test email: ' . $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+
+        // Notify
+
         return redirect()->route('dashboard.kyc.status')->with('success', 'KYC documents submitted successfully.');
     }
 
@@ -420,6 +504,30 @@ class DashboardController extends Controller
         // Update the KYC record
         $userKYC->update($data);
 
+        $kycData = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'document_id' => $data['document_id'],
+            'document_type' => $data['document_type'],
+            'application_status' => 'pending_approval',
+        ];
+
+        try {
+
+            Mail::to($user->email)->send(new KycApplication($kycData));
+
+            // Mail::raw('This is a test email.', function ($message) {
+            //     $message->to('alfredjoe@me.com')
+            //         ->subject('Test Email');
+            // });
+
+            \Log::info('Test email sent successfully');
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error sending test email: ' . $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
         return redirect()->route('dashboard.kyc.status')->with('success', 'KYC documents updated successfully.');
     }
 
@@ -434,6 +542,8 @@ class DashboardController extends Controller
         if (!$userKYC) {
             return redirect()->route('dashboard.kyc')->with('info', 'You are yet to apply for KYC verification.');
         }
+
+
 
         return view('dashboard.kyc-status', [
             'user' => $user,
@@ -578,6 +688,33 @@ class DashboardController extends Controller
                     'receipt' => $receipt
                 ]);
 
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $subscription['amount'],
+                    'transaction_reference' => $subscription['trxRef'],
+                    'payment_method' => $subscription['payment_method'],
+                    'payment_status' => 'approved',
+                    'payment_type' => $subscription['payment_type'],
+                    'receipt' => $receipt,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
+
                 $request->session()->forget(['subscription_plan', 'subscription_amount']);
 
             });
@@ -613,6 +750,33 @@ class DashboardController extends Controller
                     'payment_type' => $subscription['payment_type'],
                     'payment_id' => $package->id //Subscription package id
                 ]);
+
+                $paymentDetails = [
+                    'name' => $user->name,
+                    'amount' => $subscription['amount'],
+                    'transaction_reference' => $subscription['trxRef'],
+                    'payment_method' => $subscription['payment_method'],
+                    'payment_status' => 'pending',
+                    'payment_type' => $subscription['payment_type'],
+                    'receipt' => null,
+                ];
+
+                try {
+
+                    Mail::to($user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                    // Mail::raw('This is a test email.', function ($message) {
+                    //     $message->to('alfredjoe@me.com')
+                    //         ->subject('Test Email');
+                    // });
+
+                    \Log::info('Test email sent successfully');
+                } catch (\Exception $e) {
+                    // Log the error
+                    \Log::error('Error sending test email: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+
+                }
 
                 $request->session()->forget(['subscription_plan', 'subscription_amount']);
 
@@ -799,6 +963,8 @@ class DashboardController extends Controller
         // Fetch all subscriptions for the user
         // $currentSubscription = $user->subscriptions()->where('is_primary', true)->first();
         $withdrawalAccount = $user->withdrawalAccounts()->get();
+        $appSettings = AppSetting::first() ? AppSetting::first() : 0.00;
+        $dollarRate = $appSettings->rate ;
 
 
 
@@ -827,7 +993,8 @@ class DashboardController extends Controller
             'profilePic' => $profilePic,
             'bankAccounts' => $bankAccounts,
             'cryptoWallet' => $cryptoWallet,
-            'dashboard' => $dashboard
+            'dashboard' => $dashboard,
+            'rate' => $dollarRate
         ]);
 
     }
@@ -855,6 +1022,41 @@ class DashboardController extends Controller
             'cryptoWallet' => $cryptoWallet,
             'bankAccounts' => $bankAccounts
         ]);
+    }
+
+    public function testMail(Request $request) {
+        // dd('hit');
+        $user = Auth::user();
+        $paymentDetails = [
+            'name' => 'Alor Brad',
+            'amount' => (int) 5000.03,
+            'transaction_reference' => 'gluto/sub/2019391902/20',
+            'payment_method' => 'gluto_transfer',
+            'payment_status' => 'pending',
+            'payment_type' => 'subscription',
+            'receipt' => 'gluto/jdjdjdjd',
+        ];
+
+        // dd($user->email);
+
+        try {
+
+            Mail::to('alfredjoe@me.com')->send(new UserPaymentNotification($paymentDetails));
+
+            // Mail::raw('This is a test email.', function ($message) {
+            //     $message->to('alfredjoe@me.com')
+            //         ->subject('Test Email');
+            // });
+
+            \Log::info('Test email sent successfully');
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error sending test email: ' . $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
+
+        }
+
+
     }
 
 }
