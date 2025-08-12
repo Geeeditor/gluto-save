@@ -15,6 +15,8 @@ use Orchid\Screen\Actions\Button;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Support\Facades\DB;
 use Orchid\Support\Facades\Layout;
+use App\Mail\WithdrawalConfirmation;
+use Illuminate\Support\Facades\Mail;
 use Orchid\Platform\Notifications\DashboardMessage;
 
 
@@ -199,6 +201,30 @@ class UpdateUserWithdrawal extends Screen
                 $payment->update(['withdrawal_status' => 'pending']);
             } elseif ($paymentStatus == 'failed') {
                 $payment->update(['withdrawal_status' => 'failed']);
+            }
+
+            $withdrawalData = [
+                'name' => $payment->user->name,
+                'amount' => $payment->amount,
+                'withdrawal_status' => $paymentStatus,
+                'transaction_reference' => $transactionReference,
+            ];
+
+            try {
+
+                Mail::to($payment->user->email)->send(new WithdrawalConfirmation($withdrawalData));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+
             }
 
             $message = 'Withdrawal with transaction ref: ' . $transactionReference . '  ' . $paymentStatus;

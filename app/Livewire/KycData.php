@@ -5,7 +5,8 @@ namespace App\Livewire;
 use App\Models\UserKyc;
 use Livewire\Component;
 use Orchid\Support\Color;
-use App\Orchid\Screens\KycApplication;
+use App\Mail\KycApplication;
+use Illuminate\Support\Facades\Mail;
 use Orchid\Platform\Notifications\DashboardMessage;
 
 class KycData extends Component
@@ -23,12 +24,38 @@ class KycData extends Component
 
     public function updateStatus($id)
     {
-        $kyc = UserKyc::find($id);
+        $kyc = UserKyc::with('user')->find($id);
 
         if ($kyc) {
             // Update the KYC application status
             $kyc->application_status = $this->status[$id];
             $kyc->save();
+
+            $kycData = [
+                'name' => $kyc->user->name,
+                'email' => $kyc->user->email,
+                'document_id' => $kyc->document_id,
+                'document_type' => $kyc->document_type,
+                'application_status' => $this->status[$id],
+            ];
+
+            try {
+
+                Mail::to($kyc->user->email)->send(new KycApplication($kycData));
+
+                // Mail::raw('This is a test email.', function ($message) {
+                //     $message->to('alfredjoe@me.com')
+                //         ->subject('Test Email');
+                // });
+
+                \Log::info('Test email sent successfully');
+            } catch (\Exception $e) {
+                // Log the error
+                \Log::error('Error sending test email: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+            }
+
+
 
             // Prepare the notification message
             $message = 'Dear ' . $kyc->user->name . ', ';

@@ -17,6 +17,8 @@ use Orchid\Support\Facades\Alert;
 use Illuminate\Support\Facades\DB;
 use Orchid\Support\Facades\Layout;
 use App\Models\PackageSubscription;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserPaymentNotification;
 use Orchid\Platform\Notifications\DashboardMessage;
 
 class UpdateUserPayment extends Screen
@@ -148,14 +150,27 @@ class UpdateUserPayment extends Screen
             return redirect()->route('platform.payments')->with('message', 'Transaction already has an existing payment status of approved therefore payment status is left unchanged.');
         }
 
+
+
         // Start a database transaction
         DB::transaction(function () use ($payment, $paymentStatus, $transactionReference) {
             // Update the payment status first
             $payment->update(['payment_status' => $paymentStatus]);
 
             // Generate a receipt number if the payment status is approved
+            $receiptNumber = $this->generateReceiptNumber();
+
+            $paymentDetails = [
+                'name' => $payment->user->name,
+                'amount' => $payment->amount,
+                'transaction_reference' => $transactionReference,
+                'payment_status' => $paymentStatus,
+                'payment_type' => $payment->payment_type,
+                'payment_method' => $payment->payment_method,
+                'receipt' => $receiptNumber,
+            ];
+
             if ($paymentStatus === 'approved') {
-                $receiptNumber = $this->generateReceiptNumber();
                 $payment->update(['receipt' => $receiptNumber]);
             }
 
@@ -164,6 +179,8 @@ class UpdateUserPayment extends Screen
                 case 'registration':
                     // Update ActivateDashboard status
                     $dashboard = ActivateDashboard::with('user')->where('id', $payment->payment_id)->first();
+
+
                     if ($paymentStatus === 'approved') {
                         if ($dashboard) {
                             $dashboard->update(['dashboard_status' => true]);
@@ -174,12 +191,31 @@ class UpdateUserPayment extends Screen
                         }
                     }
 
+                    try {
+
+                        Mail::to($payment->user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                        // Mail::raw('This is a test email.', function ($message) {
+                        //     $message->to('alfredjoe@me.com')
+                        //         ->subject('Test Email');
+                        // });
+
+                        \Log::info('Test email sent successfully');
+                    } catch (\Exception $e) {
+                        // Log the error
+                        \Log::error('Error sending test email: ' . $e->getMessage());
+                        return redirect()->back()->with('error', $e->getMessage());
+
+                    }
+
                     $message = 'Payment with transaction ref: ' . $transactionReference . '  ' . $paymentStatus;
 
                     $dashboard->user->notify(
 
                         DashboardMessage::make()->title('Trx Notification')->message($message)->type(Color::INFO)
                     );
+
+
                     break;
 
                 case 'wallet_fund':
@@ -192,6 +228,23 @@ class UpdateUserPayment extends Screen
                             \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
                             return; // Exit or handle accordingly
                         }
+                    }
+
+                    try {
+
+                        Mail::to($payment->user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                        // Mail::raw('This is a test email.', function ($message) {
+                        //     $message->to('alfredjoe@me.com')
+                        //         ->subject('Test Email');
+                        // });
+
+                        \Log::info('Test email sent successfully');
+                    } catch (\Exception $e) {
+                        // Log the error
+                        \Log::error('Error sending test email: ' . $e->getMessage());
+                        return redirect()->back()->with('error', $e->getMessage());
+
                     }
 
                     $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
@@ -217,6 +270,23 @@ class UpdateUserPayment extends Screen
                             // Handle the case where the dashboard does not exist
                             \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
                             return; // Exit or handle accordingly
+                        }
+
+                        try {
+
+                            Mail::to($payment->user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                            // Mail::raw('This is a test email.', function ($message) {
+                            //     $message->to('alfredjoe@me.com')
+                            //         ->subject('Test Email');
+                            // });
+
+                            \Log::info('Test email sent successfully');
+                        } catch (\Exception $e) {
+                            // Log the error
+                            \Log::error('Error sending test email: ' . $e->getMessage());
+                            return redirect()->back()->with('error', $e->getMessage());
+
                         }
 
                         $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
@@ -253,6 +323,23 @@ class UpdateUserPayment extends Screen
                             return; // Exit or handle accordingly
                         }
 
+                        try {
+
+                            Mail::to($payment->user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                            // Mail::raw('This is a test email.', function ($message) {
+                            //     $message->to('alfredjoe@me.com')
+                            //         ->subject('Test Email');
+                            // });
+
+                            \Log::info('Test email sent successfully');
+                        } catch (\Exception $e) {
+                            // Log the error
+                            \Log::error('Error sending test email: ' . $e->getMessage());
+                            return redirect()->back()->with('error', $e->getMessage());
+
+                        }
+
                         $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
                         $subscription->user->notify(
 
@@ -264,6 +351,7 @@ class UpdateUserPayment extends Screen
                 case 'debt_pyt':
                     $subscription = PackageSubscription::where('id', $payment->payment_id)->first();
                     if ($subscription) {
+
                         if ($paymentStatus === 'approved') {
                             $subscription->increment('total_contribution', $payment->amount);
 
@@ -290,9 +378,45 @@ class UpdateUserPayment extends Screen
                             }
 
                         } else {
+                            try {
+
+                                Mail::to($payment->user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                                // Mail::raw('This is a test email.', function ($message) {
+                                //     $message->to('alfredjoe@me.com')
+                                //         ->subject('Test Email');
+                                // });
+
+                                \Log::info('Test email sent successfully');
+                            } catch (\Exception $e) {
+                                // Log the error
+                                \Log::error('Error sending test email: ' . $e->getMessage());
+                                return redirect()->back()->with('error', $e->getMessage());
+
+                            }
+
                             // Handle the case where the dashboard does not exist
                             \Log::warning('Dashboard not found for payment ID: ' . $payment->payment_id);
                             return; // Exit or handle accordingly
+                        }
+
+
+
+                        try {
+
+                            Mail::to($payment->user->email)->send(new UserPaymentNotification($paymentDetails));
+
+                            // Mail::raw('This is a test email.', function ($message) {
+                            //     $message->to('alfredjoe@me.com')
+                            //         ->subject('Test Email');
+                            // });
+
+                            \Log::info('Test email sent successfully');
+                        } catch (\Exception $e) {
+                            // Log the error
+                            \Log::error('Error sending test email: ' . $e->getMessage());
+                            return redirect()->back()->with('error', $e->getMessage());
+
                         }
 
                         $message = 'Payment with transaction ref: ' . $transactionReference . ' ' . $paymentStatus;
