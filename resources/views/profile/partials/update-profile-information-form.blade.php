@@ -1,10 +1,9 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="font-medium text-gray-900 text-lg">
             {{ __('Profile Information') }}
         </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-gray-600 text-sm">
             {{ __("Update your account's profile information and email address.") }}
         </p>
     </header>
@@ -13,38 +12,47 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="space-y-6 mt-6">
         @csrf
         @method('patch')
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+            <x-text-input id="name" name="name" type="text" class="block mt-1 w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="block mt-1 w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        </div>
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+        <div>
+            <x-input-label for="gender" :value="__('Gender')" />
+            <select name="gender" id="gender" class="block mt-1 w-full">
+                <option value="male" {{ old('gender', $user->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                <option value="female" {{ old('gender', $user->gender) == 'female' ? 'selected' : '' }}>Female</option>
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('gender')" />
+        </div>
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
+        <div>
+            <x-input-label for="contact_no" :value="__('Contact No')" />
+            <x-text-input id="contact_no" name="contact_no" type="text" class="block mt-1 w-full" :value="old('contact_no', $user->contact_no)" required autocomplete="contact_no" />
+            <x-input-error class="mt-2" :messages="$errors->get('contact_no')" />
+        </div>
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
+        <div>
+            <x-input-label for="address" :value="__('Address')" />
+            <x-text-input id="address" name="address" type="text" class="block mt-1 w-full" :value="old('address', $user->address)" required autocomplete="address" />
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
+        </div>
+
+        <div>
+            <x-input-label for="dob" :value="__('Date of Birth')" />
+            <x-text-input id="dob" name="dob" type="date" class="block mt-1 w-full" :value="old('dob', $user->dob)" required autocomplete="dob" />
+            <x-input-error class="mt-2" :messages="$errors->get('dob')" />
         </div>
 
         <div class="flex items-center gap-4">
@@ -56,7 +64,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
+                    class="text-gray-600 text-sm"
                 >{{ __('Saved.') }}</p>
             @endif
         </div>

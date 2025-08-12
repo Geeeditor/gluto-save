@@ -28,6 +28,34 @@ class DashboardController extends Controller
         $this->userService = $userService;
     }
 
+    public function profile(){
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+
+        return view('dashboard.profile', ['user'=>$user, 'profilePic' => $profilePic]);
+    }
+
+    public function updateProfile(Request $request) {
+        $data = $request->validate([
+            'profile_pic' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        if ($request->hasFile('profile_pic')) {
+            $file = $request->file('profile_pic');
+            $fileName = 'profile_' . Str::random(4) . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('profiles', $fileName, 'public');
+            $user->display_pic = $fileName;
+        }
+
+        $user->update([
+            'display_pic' => $fileName,
+        ]);
+
+        return redirect()->route('dashboard.profile')->with('success', 'Profile picture updated successfully.');
+    }
+
 
     public function account() {
         $user = Auth::user();
@@ -1055,6 +1083,49 @@ class DashboardController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
 
         }
+
+
+    }
+
+    public function notifications()
+    {
+        $user = Auth::user();
+        $profilePic = $this->userService->getUserPlaceholderImage();
+
+
+        $notifications = DB::table('notifications')
+            ->where('notifiable_id', $user->id)
+            ->orderBy('created_at', 'desc') // Sort by date descending
+             // Get the latest two notifications
+            ->get();
+        $notificationData = [];
+
+
+        foreach ($notifications as $notification) {
+            // Decode the entire 'data' field, which is a JSON string
+            $data = json_decode($notification->data, true); // No need for ['title'] here
+
+            if (isset($data)) {
+                $notificationData[] = $data;
+            }
+        }
+
+        if (!isset($notificationData)) {
+            $notificationData = [];
+        }
+
+        // dd($notificationData);
+
+
+
+        return view('dashboard.notification', [
+            'user' => $user,
+            'profilePic' => $profilePic,
+            'notificationData' => $notificationData,
+
+        ]);
+
+
 
 
     }

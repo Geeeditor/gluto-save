@@ -27,7 +27,8 @@ class User extends Authenticatable
         'dob',
         'referral_id',
         'password',
-        'usertype'
+        'usertype',
+        'display_pic'
     ];
 
     /**

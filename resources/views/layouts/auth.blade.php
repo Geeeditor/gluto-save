@@ -102,7 +102,7 @@
                 </a>
 
                 <div class="d-flex flex-col dropdown-menus">
-                    <a href="" class="text-white sidebar-navigation-list">&raquo; Manage Profile</a>
+                    <a href="{{ route('dashboard.profile') }}" class="text-white sidebar-navigation-list">&raquo; Manage Profile</a>
 
                     <a href="{{ route('dashboard.kyc') }}" class="text-white sidebar-navigation-list">&raquo; Apply for
                         KYC</a>
@@ -369,13 +369,13 @@
                 </div>
 
                 <div class="inline-flex relative justify-center items-center p-2 border border-black rounded-full">
-                    <a href="">
+                    <a href="{{route('dashboard.notifications')}}">
                         <img src="{{ asset('images/icons/notification.svg') }}"
                             class="w-auto h-[24px] object-center">
                     </a>
                     <span
                         class="top-0 right-0 absolute flex justify-center items-center bg-red-500 rounded-full w-5 h-5 font-bold text-white text-xs">
-                        {{ count($notificationData) }}
+                        {{ count($notificationData) > 10 ? '9+' : count($notificationData) }}
                     </span>
                 </div>
 

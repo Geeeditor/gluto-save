@@ -53,15 +53,21 @@ Route::put('/admin/dashboard/wallet-balance/{id}', [ConfigurationController::cla
 Route::middleware('user')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
+    Route::get('/dashboard/profile', [DashboardController::class, 'profile'])->middleware(['auth', 'verified'])->name('dashboard.profile');
+
+    Route::put('/dashboard/profile/update', [DashboardController::class, 'updateProfile'])->name('dashboard.profile.update');
+
+    Route::get('/dashboard/notifications', [DashboardController::class, 'notifications'])->name('dashboard.notifications');
+
     //Auth KYC Endpoints
 
-    Route::get('/dashboard/kyc', [DashboardController::class, 'kyc'])->middleware(['auth', 'verified'])->name('dashboard.kyc');
+    Route::get('/dashboard/kyc', [DashboardController::class, 'kyc'])->name('dashboard.kyc');
 
     Route::post('/dashboard/kyc/store', [DashboardController::class, 'kycStore'])->name('dashboard.kyc.store');
 
     Route::put('/dashboard/kyc/update/{id}', [DashboardController::class, 'kycUpdate'])->name('dashboard.kyc.update');
 
-    Route::get('/dashboard/kyc/status', [DashboardController::class, 'kycStatus'])->middleware(['auth', 'verified'])->name('dashboard.kyc.status');
+    Route::get('/dashboard/kyc/status', [DashboardController::class, 'kycStatus'])->name('dashboard.kyc.status');
 
     //Auth Account Dashoard Activation Endpoints
 

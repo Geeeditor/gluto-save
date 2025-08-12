@@ -34,8 +34,8 @@
                 <div class="form-group" name="gender">
                     <select name="gender" required="" class="form-control">
                         <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
                     </select>
                     @error('gender')
                         {{ $message }}

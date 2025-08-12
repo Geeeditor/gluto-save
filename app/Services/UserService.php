@@ -47,7 +47,7 @@ class UserService
         }
 
         // Return a default image or null if the display picture exists
-        return 'https://placehold.co/300x300/000000/FFF?text=JD'; // or a default placeholder URL
+        return '/images/profiles/' .$user->display_pic; // or a default placeholder URL
     }
 
     public function generateTrxRef($trxType, $subID = null)
