@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
 
-        <title>  @yield('title') | Gluto International (HEP)</title>
+        <title>  @yield('title') | {{config('app.name')}}</title>
         {{-- <link rel="canonical" href="{{ env('APP_URL') }}"> --}}
         {{-- {{env('APP_NAME')}} --}}
         <!-- Fonts -->
@@ -210,15 +210,15 @@
 		<div class="footer-list">
 			<h3 class="footer-heading">Legal</h3>
 			<div class="d-flex flex-col footer-link">
-				<a href="">Terms</a>
+				<a href="{{route('terms')}}">Terms</a>
 			</div>
 		</div>
 
 		<div class="footer-list">
 			<h3 class="footer-heading">Company</h3>
 			<div class="d-flex flex-col footer-link">
-				<a href="">About</a>
-				<a href="">FAQs</a>
+				<a href="{{route('about')}}">About</a>
+				<a href="{{route('faq')}}">FAQs</a>
 			</div>
 		</div>
 

@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('dashboard.subscriptions') }}" class="d-flex sidebar-navigation-list align-center">
+            <a href="{{ !is_null($settings->subscription_enabled) && $settings->subscription_enabled ? route('dashboard.subscriptions') : 'javascript:void(0)' }}" onclick="{{ !$settings->subscription_enabled ? 'alert(\'We are sorry you cannot manage subscriptions at this time.\'); event.preventDefault();' : '' }}" class="{{ !$settings->subscription_enabled ? 'cursor-not-allowed' : '' }} d-flex sidebar-navigation-list align-center">
                 <img src="{{ asset('/images/icons/plan.svg') }}">
                 <!--<i style="font-size:15px;" class="text-white ri-file-lock-line"></i>-->
                 <span class="text-white">My Plan</span>
@@ -124,23 +124,29 @@
             </a>
 
 
-            <a  href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ? route('dashboard.contribution') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex  sidebar-navigation-list align-center">
-                <img class="" src="{{ asset('/images/icons/contribute.svg') }}">
-                <span class="text-white">Make Contribution</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
+            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled ? route('dashboard.contribution') : 'javascript:void(0)' }}"
+                onclick="{{ !$settings->contribution_enabled ? 'alert(\'We are sorry you cannot make a contribution at this time.\'); event.preventDefault();' : '' }}"
+                class="{{ !$settings->contribution_enabled ? 'cursor-not-allowed' : '' }} d-flex sidebar-navigation-list align-center">
+                 <img src="{{ asset('/images/icons/contribute.svg') }}" alt="Contribute Icon">
+                 <span class="text-white">Make Contribution</span>
+                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+             </a>
 
-            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.claim.status') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
-                <img src="{{ asset('/images/icons/claim.svg') }}">
-                <span class="text-white">Claim Contribution</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
+             <a href="{{ !is_null($settings->subscription_enabled) && $settings->subscription_enabled ? route('dashboard.claim.status') : 'javascript:void(0)' }}"
+                onclick="{{ !$settings->subscription_enabled ? 'alert(\'We are sorry you cannot claim contributions at this time.\'); event.preventDefault();' : '' }}"
+                class="{{ !$settings->subscription_enabled ? 'cursor-not-allowed' : '' }} d-flex sidebar-navigation-list align-center">
+                 <img src="{{ asset('/images/icons/claim.svg') }}" alt="Claim Icon">
+                 <span class="text-white">Claim Contribution</span>
+                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+             </a>
 
-            <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled  ?  route('dashboard.defaulted-payment') : 'javascript:void(0)' }}" class="{{!$settings->contribution_enabled ? ' cursor-not-allowed ' : ''}} d-flex sidebar-navigation-list align-center">
-                <img class="" src="{{ asset('/images/icons/default.svg') }}">
-                <span class="text-white">Clear Defaulted Payment</span>
-                <i class="ri-arrow-right-s-line text-white nav-icon"></i>
-            </a>
+             <a href="{{ !is_null($settings->contribution_enabled) && $settings->contribution_enabled ? route('dashboard.defaulted-payment') : 'javascript:void(0)' }}"
+                onclick="{{ !$settings->contribution_enabled ? 'alert(\'We are sorry you cannot clear defaulted payments at this time.\'); event.preventDefault();' : '' }}"
+                class="{{ !$settings->contribution_enabled ? 'cursor-not-allowed' : '' }} d-flex sidebar-navigation-list align-center">
+                 <img src="{{ asset('/images/icons/default.svg') }}" alt="Default Payment Icon">
+                 <span class="text-white">Clear Defaulted Payment</span>
+                 <i class="ri-arrow-right-s-line text-white nav-icon"></i>
+             </a>
 
 
 
@@ -166,8 +172,11 @@
                         onclick="swal('Updates Coming Soon','Please check back later','success')">&raquo; View/Delete Cashout Accounts</a> --}}
                     <a href="{{ route('dashboard.withdrawal') }}" class="text-white sidebar-navigation-list"
                        >&raquo; View/Delete Payout Accounts</a>
-                    <a href="{{ route('dashboard.make-withdrawal') }}" class="text-white sidebar-navigation-list"
-                        >&raquo; Make Withdrawal </a>
+                       <a href="{{ $settings->withdrawal_enabled ? route('dashboard.make-withdrawal') : 'javascript:void(0)' }}"
+                        onclick="{{ !$settings->withdrawal_enabled ? 'alert(\'We are sorry you cannot make a withdrawal at this time.\'); event.preventDefault();' : '' }}"
+                        class="{{ !$settings->withdrawal_enabled ? 'cursor-not-allowed' : '' }} text-white sidebar-navigation-list">
+                         &raquo; Make Withdrawal
+                     </a>
                     <a href="{{route('dashboard.withdrawal.history')}}" class="text-white sidebar-navigation-list"
                         >&raquo; Withdrawal History</a>
 

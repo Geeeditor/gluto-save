@@ -20,7 +20,7 @@
     </div>
 </div>
 @else
-<div class="bg-white shadow-md mx-auto p-6 rounded-lg max-w-2xl">
+<div class="bg-white shadow-md p-6 rounded-lg w-full">
     <div class="flex justify-between items-center mb-4">
         <h5 class="font-bold text-lg">Notifications</h5>
     </div>

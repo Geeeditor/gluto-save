@@ -98,7 +98,7 @@
                         <input style="accent-color: var(--main)" type="checkbox"
                             oninvalid="this.setCustomValidity('Kindly agree to our terms and condition before you can proceed')"
                             required="" name="terms_condition" oninput="this.setCustomValidity('')"> I agree to Gluto HEP
-                        <a class="text-colored" target="_blank" href="">terms and conditions</a>
+                        <a class="text-colored" target="_blank" href="{{route('terms')}}">terms and conditions</a>
                     </label>
                 </div>
 

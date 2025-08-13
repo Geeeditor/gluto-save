@@ -29,6 +29,10 @@ Route::get('/contact-us', function () {
     return view('contact');
 })->name('contact');
 
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
 // Public route for subscription plans
 Route::get('/dashboard/plan', [DashboardController::class, 'subscribe'])->name('plan');
 
